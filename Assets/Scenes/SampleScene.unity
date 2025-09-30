@@ -694,10 +694,10 @@ MonoBehaviour:
   stinkyButton: {fileID: 1624838910}
   hungrySceneName: FoodScene
   stinkySceneName: BathScene
-  dogBubbleOffset: {x: 0, y: 0}
-  girlBubbleOffset: {x: 0, y: 2.1}
-  hungryBtnOffset: {x: -0.6, y: 2.4}
-  stinkyBtnOffset: {x: 0.4, y: 2.4}
+  dogBubbleOffset: {x: 2, y: 0}
+  girlBubbleOffset: {x: 2, y: 1.1}
+  hungryBtnOffset: {x: 1, y: 1.5}
+  stinkyBtnOffset: {x: 0.4, y: 1.5}
   fadeTime: 0.18
   popScale: 1
 --- !u!1 &619394800
