@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: c7c23cee0a7e247a784d40cd6d4c33a3
+guid: aed7f3b372d62470ba1c866eb85817bc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7620910011639501280
-    second: window_girl_0
-  - first:
-      213: -5597969853354198013
-    second: window_girl_1
-  - first:
-      213: 6527370934285725772
-    second: window_girl_2
-  - first:
-      213: 6582877722583290070
-    second: window_girl_3
+      213: -1045181238759104467
+    second: food_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -135,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: window_girl_0
+      name: food_0
       rect:
         serializedVersion: 2
-        x: 4964
-        y: 2977
-        width: 5074
-        height: 3484
+        x: 5119
+        y: 2080
+        width: 1605
+        height: 1425
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,74 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 02e6203c8b61d3690800000000000000
-      internalID: -7620910011639501280
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: window_girl_1
-      rect:
-        serializedVersion: 2
-        x: 1113
-        y: 1622
-        width: 611
-        height: 1152
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 30c3a73e3140052b0800000000000000
-      internalID: -5597969853354198013
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: window_girl_2
-      rect:
-        serializedVersion: 2
-        x: 1144
-        y: 1582
-        width: 527
-        height: 619
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c407f4ff741e59a50800000000000000
-      internalID: 6527370934285725772
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: window_girl_3
-      rect:
-        serializedVersion: 2
-        x: 6984
-        y: 1964
-        width: 563
-        height: 920
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6d0d86e39641b5b50800000000000000
-      internalID: 6582877722583290070
+      spriteID: d206cd17335ce71f0800000000000000
+      internalID: -1045181238759104467
       vertices: []
       indices: 
       edges: []
@@ -226,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -236,10 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      window_girl_0: -7620910011639501280
-      window_girl_1: -5597969853354198013
-      window_girl_2: 6527370934285725772
-      window_girl_3: 6582877722583290070
+      food_0: -1045181238759104467
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
