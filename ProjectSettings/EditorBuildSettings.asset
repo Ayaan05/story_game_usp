@@ -8,6 +8,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main_Scene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Food_Scene.unity
+    guid: f7635bc45d38649ae95a38297421962c
+  - enabled: 1
+    path: Assets/Scenes/Bath_Scene.unity
+    guid: d76f8a6e0009d4ade9fc310ca4e805b8
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
