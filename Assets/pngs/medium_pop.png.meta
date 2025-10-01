@@ -1,7 +1,43 @@
 fileFormatVersion: 2
 guid: 43421cf6b46274e2f8227f2bcf5335f4
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 7818149834683940992
+    second: medium_pop_0
+  - first:
+      213: 1552759465265696350
+    second: medium_pop_1
+  - first:
+      213: -2114439418055102459
+    second: medium_pop_2
+  - first:
+      213: -8350292515270149866
+    second: medium_pop_3
+  - first:
+      213: -5500694385647841229
+    second: medium_pop_4
+  - first:
+      213: -2022093800077606625
+    second: medium_pop_5
+  - first:
+      213: 6205867168436514198
+    second: medium_pop_6
+  - first:
+      213: 3539588342331466454
+    second: medium_pop_7
+  - first:
+      213: 7527728004774122734
+    second: medium_pop_8
+  - first:
+      213: -3522786105983664299
+    second: medium_pop_9
+  - first:
+      213: 726553641747481585
+    second: medium_pop_10
+  - first:
+      213: 6222857493672540264
+    second: medium_pop_11
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -66,10 +102,326 @@ TextureImporter:
   applyGammaDecoding: 0
   swizzle: 50462976
   cookieLightType: 0
-  platformSettings: []
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: medium_pop_0
+      rect:
+        serializedVersion: 2
+        x: 9978
+        y: 6186
+        width: 138
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0808d113ad5af7c60800000000000000
+      internalID: 7818149834683940992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_1
+      rect:
+        serializedVersion: 2
+        x: 10347
+        y: 6191
+        width: 187
+        height: 436
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5e89ccb1828c8510800000000000000
+      internalID: 1552759465265696350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_2
+      rect:
+        serializedVersion: 2
+        x: 10660
+        y: 6308
+        width: 76
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 500fdb35d8008a2e0800000000000000
+      internalID: -2114439418055102459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_3
+      rect:
+        serializedVersion: 2
+        x: 11055
+        y: 6063
+        width: 316
+        height: 394
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61938b8f23dcd1c80800000000000000
+      internalID: -8350292515270149866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_4
+      rect:
+        serializedVersion: 2
+        x: 9445
+        y: 5789
+        width: 480
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3309975a99b99a3b0800000000000000
+      internalID: -5500694385647841229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_5
+      rect:
+        serializedVersion: 2
+        x: 11087
+        y: 5749
+        width: 257
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f11cadff66410f3e0800000000000000
+      internalID: -2022093800077606625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_6
+      rect:
+        serializedVersion: 2
+        x: 9835
+        y: 5439
+        width: 249
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69deae14f4baf1650800000000000000
+      internalID: 6205867168436514198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_7
+      rect:
+        serializedVersion: 2
+        x: 11044
+        y: 5350
+        width: 522
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d2e7c308d42f1130800000000000000
+      internalID: 3539588342331466454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_8
+      rect:
+        serializedVersion: 2
+        x: 9900
+        y: 4965
+        width: 388
+        height: 395
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee4525a9cbcd77860800000000000000
+      internalID: 7527728004774122734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_9
+      rect:
+        serializedVersion: 2
+        x: 10414
+        y: 5177
+        width: 88
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55f792d73bc8c1fc0800000000000000
+      internalID: -3522786105983664299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_10
+      rect:
+        serializedVersion: 2
+        x: 10865
+        y: 5281
+        width: 150
+        height: 157
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f300ae00bc351a00800000000000000
+      internalID: 726553641747481585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: medium_pop_11
+      rect:
+        serializedVersion: 2
+        x: 10678
+        y: 4809
+        width: 252
+        height: 466
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 868ba3e9be70c5650800000000000000
+      internalID: 6222857493672540264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -83,7 +435,19 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      medium_pop_0: 7818149834683940992
+      medium_pop_1: 1552759465265696350
+      medium_pop_10: 726553641747481585
+      medium_pop_11: 6222857493672540264
+      medium_pop_2: -2114439418055102459
+      medium_pop_3: -8350292515270149866
+      medium_pop_4: -5500694385647841229
+      medium_pop_5: -2022093800077606625
+      medium_pop_6: 6205867168436514198
+      medium_pop_7: 3539588342331466454
+      medium_pop_8: 7527728004774122734
+      medium_pop_9: -3522786105983664299
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
