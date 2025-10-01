@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 1f5872333e04e41ad8ac2837dc534fd0
+guid: e30ca137af4824bb09a2fced3eac3f5f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 997412490258152810
-    second: blue_shine_0
-  - first:
-      213: 4042465023558307151
-    second: blue_shine_1
+      213: 829100331442432593
+    second: clean_dog_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -129,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: blue_shine_0
+      name: clean_dog_0
       rect:
         serializedVersion: 2
-        x: 3237
-        y: 3899
-        width: 729
-        height: 732
+        x: 0
+        y: 0
+        width: 11314
+        height: 8436
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -144,30 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a6dff58106587dd00800000000000000
-      internalID: 997412490258152810
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: blue_shine_1
-      rect:
-        serializedVersion: 2
-        x: 3567
-        y: 2482
-        width: 440
-        height: 461
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f4d42226588b91830800000000000000
-      internalID: 4042465023558307151
+      spriteID: 15ae8c2db5e818b00800000000000000
+      internalID: 829100331442432593
       vertices: []
       indices: 
       edges: []
@@ -186,8 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      blue_shine_0: 997412490258152810
-      blue_shine_1: 4042465023558307151
+      clean_dog_0: 829100331442432593
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

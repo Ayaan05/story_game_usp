@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 1f5872333e04e41ad8ac2837dc534fd0
+guid: 76b9e9a128aff476a8a57486c77ab01a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 997412490258152810
-    second: blue_shine_0
+      213: 3135643646890536159
+    second: bones_3_4 1_0
   - first:
-      213: 4042465023558307151
-    second: blue_shine_1
+      213: 2180643664205909684
+    second: bones_3_4 1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -129,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: blue_shine_0
+      name: bones_3_4 1_0
       rect:
         serializedVersion: 2
-        x: 3237
-        y: 3899
-        width: 729
-        height: 732
+        x: 4056
+        y: 2687
+        width: 2875
+        height: 2314
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -144,20 +144,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a6dff58106587dd00800000000000000
-      internalID: 997412490258152810
+      spriteID: fdcee13984b048b20800000000000000
+      internalID: 3135643646890536159
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: blue_shine_1
+      name: bones_3_4 1_1
       rect:
         serializedVersion: 2
-        x: 3567
-        y: 2482
-        width: 440
-        height: 461
+        x: 4204
+        y: 2490
+        width: 895
+        height: 374
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f4d42226588b91830800000000000000
-      internalID: 4042465023558307151
+      spriteID: 4be03baebd3334e10800000000000000
+      internalID: 2180643664205909684
       vertices: []
       indices: 
       edges: []
@@ -186,8 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      blue_shine_0: 997412490258152810
-      blue_shine_1: 4042465023558307151
+      bones_3_4 1_0: 3135643646890536159
+      bones_3_4 1_1: 2180643664205909684
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
