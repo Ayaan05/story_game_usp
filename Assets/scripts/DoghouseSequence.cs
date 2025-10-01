@@ -7,8 +7,11 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
+// testing
+
 public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 {
+
     private enum Step { Closed, Opened, SaidHi, AskedHow, ChooseFeeling, Done }
 
     [Header("Sprites")]
@@ -34,14 +37,34 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     [SerializeField] private string stinkySceneName = "BathScene";
 
     [Header("World Offsets (relative to target in WORLD units)")]
-    [SerializeField] private Vector2 dogBubbleOffset   = new Vector2(0f, 2.0f);
-    [SerializeField] private Vector2 girlBubbleOffset  = new Vector2(0f, 2.1f);
-    [SerializeField] private Vector2 hungryBtnOffset   = new Vector2(-0.6f, 2.4f);
-    [SerializeField] private Vector2 stinkyBtnOffset   = new Vector2( 0.4f, 2.4f);
+    [SerializeField] private Vector2 dogBubbleOffset = new Vector2(0f, 2.0f);
+    [SerializeField] private Vector2 girlBubbleOffset = new Vector2(0f, 2.1f);
+    [SerializeField] private Vector2 hungryBtnOffset = new Vector2(-0.6f, 2.4f);
+    [SerializeField] private Vector2 stinkyBtnOffset = new Vector2(0.4f, 2.4f);
 
     [Header("Animation")]
     [SerializeField, Range(0.05f, 0.6f)] private float fadeTime = 0.18f;
     [SerializeField, Range(0.75f, 1.25f)] private float popScale = 1.0f;
+
+
+    // === Audio ===
+    [Header("Audio")]
+    [SerializeField] private AudioSource sfxSource;        // drag the Audio Source here
+    [SerializeField] private AudioClip doorOpenClip;        // opening-door-411632
+    [SerializeField] private AudioClip textDingClip;        // ding-402325 (HI + HOW)
+    [SerializeField] private AudioClip optionsAppearClip;   // pen-click-2-411631
+    [SerializeField] private AudioClip optionClickClip;     // optional: pen-click-2-411631
+    [SerializeField, Range(0f,1f)] private float sfxVolume = 1f;
+
+    private void PlaySfx(AudioClip clip)
+    {
+        if (sfxSource != null && clip != null)
+            sfxSource.PlayOneShot(clip, sfxVolume);
+    }
+
+    
+
+
 
     // internals
     private SpriteRenderer sr;
@@ -64,7 +87,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
         }
 
         // Defaults if not assigned
-        if (!dogTransform)  dogTransform  = transform;
+        if (!dogTransform) dogTransform = transform;
         if (!girlTransform) girlTransform = transform;
 
         // Try to auto-find a Canvas if not assigned to make setup more forgiving
@@ -147,6 +170,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     {
         if (openSprite) sr.sprite = openSprite;
         // lil' pop on open
+        PlaySfx(doorOpenClip);  // 1st click: door opens
         StartCoroutine(SpritePop(sr.transform, fadeTime));
     }
 
@@ -154,13 +178,15 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     {
         StartCoroutine(ClearBubblesSmooth()); // remove previous (if any)
         SpawnBubbleOver(girlTransform, bubbleGirlHiPrefab, girlBubbleOffset);
-        SpawnBubbleOver(dogTransform,  bubbleDogHiPrefab,  dogBubbleOffset);
+        SpawnBubbleOver(dogTransform, bubbleDogHiPrefab, dogBubbleOffset);
+        PlaySfx(textDingClip); // 2nd click: HI bubbles
     }
 
     void AskHow()
     {
         StartCoroutine(ClearBubblesSmooth());
         SpawnBubbleOver(girlTransform, bubbleGirlHowPrefab, girlBubbleOffset);
+        PlaySfx(textDingClip); // 3rd click: HOW text
     }
 
     void ShowFeelingChoices()
@@ -183,10 +209,12 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             stinkyButton.gameObject.SetActive(true);
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
+        PlaySfx(optionsAppearClip); // 4th click: options cloud appears
     }
 
     void OnHungry()
     {
+        PlaySfx(optionClickClip);   // optional click sound
         if (!string.IsNullOrEmpty(hungrySceneName))
             SceneManager.LoadScene(hungrySceneName);
         step = Step.Done;
@@ -194,6 +222,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 
     void OnStinky()
     {
+        PlaySfx(optionClickClip);   // optional click sound
         if (!string.IsNullOrEmpty(stinkySceneName))
             SceneManager.LoadScene(stinkySceneName);
         step = Step.Done;
