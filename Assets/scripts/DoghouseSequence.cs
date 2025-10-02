@@ -58,8 +58,42 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 
     private void PlaySfx(AudioClip clip)
     {
-        if (sfxSource != null && clip != null)
+        if (clip == null)
+        {
+            Debug.LogWarning("PlaySfx: clip is null");
+            return;
+        }
+
+        if (sfxSource == null)
+        {
+            Debug.LogWarning("PlaySfx: sfxSource is null. Attempting to auto-find an AudioSource.");
+            var srcs = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+            foreach (var s in srcs)
+            {
+                // prefer non-looping sources (likely SFX sources)
+                if (!s.loop)
+                {
+                    sfxSource = s;
+                    Debug.Log("PlaySfx: auto-assigned sfxSource to " + sfxSource.gameObject.name);
+                    break;
+                }
+            }
+            if (sfxSource == null && srcs.Length > 0)
+            {
+                sfxSource = srcs[0];
+                Debug.Log("PlaySfx: fallback assigned sfxSource to " + sfxSource.gameObject.name);
+            }
+        }
+
+        if (sfxSource != null)
+        {
             sfxSource.PlayOneShot(clip, sfxVolume);
+            Debug.Log("PlaySfx: playing clip " + clip.name + " on " + sfxSource.gameObject.name + " at vol " + sfxVolume);
+        }
+        else
+        {
+            Debug.LogWarning("PlaySfx: no AudioSource available to play clip " + clip.name);
+        }
     }
 
     
@@ -125,6 +159,33 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             stinkyButton.gameObject.SetActive(false);
             stinkyButton.onClick.RemoveAllListeners();
             stinkyButton.onClick.AddListener(OnStinky);
+        }
+
+        // Ensure we have an sfx source assigned; do not override if the designer assigned one
+        if (sfxSource == null)
+        {
+            var srcs = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+            foreach (var s in srcs)
+            {
+                if (!s.loop)
+                {
+                    sfxSource = s;
+                    Debug.Log("DoghouseSequence: auto-assigned sfxSource to " + sfxSource.gameObject.name);
+                    break;
+                }
+            }
+            if (sfxSource == null)
+            {
+                // create a dedicated SFX AudioSource so we don't accidentally play SFX on the looping music source
+                GameObject sfxGo = new GameObject("SFX_Player");
+                sfxGo.transform.SetParent(null);
+                sfxSource = sfxGo.AddComponent<AudioSource>();
+                sfxSource.playOnAwake = false;
+                sfxSource.loop = false;
+                sfxSource.volume = sfxVolume;
+                DontDestroyOnLoad(sfxGo);
+                Debug.Log("DoghouseSequence: created dedicated sfxSource on " + sfxGo.name);
+            }
         }
     }
 
@@ -199,6 +260,8 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             var rt = hungryButton.transform as RectTransform;
             PlaceUIOverWorld(rt, dogTransform, hungryBtnOffset);
             hungryButton.gameObject.SetActive(true);
+            hungryButton.interactable = true;
+            Debug.Log("ShowFeelingChoices: enabled hungryButton and placed at " + rt.anchoredPosition);
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
 
@@ -207,6 +270,8 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             var rt = stinkyButton.transform as RectTransform;
             PlaceUIOverWorld(rt, dogTransform, stinkyBtnOffset);
             stinkyButton.gameObject.SetActive(true);
+            stinkyButton.interactable = true;
+            Debug.Log("ShowFeelingChoices: enabled stinkyButton and placed at " + rt.anchoredPosition);
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
         PlaySfx(optionsAppearClip); // 4th click: options cloud appears
@@ -214,18 +279,34 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 
     void OnHungry()
     {
-        PlaySfx(optionClickClip);   // optional click sound
-        if (!string.IsNullOrEmpty(hungrySceneName))
-            SceneManager.LoadScene(hungrySceneName);
+        // play click and then load so the SFX can be heard
+        StartCoroutine(PlaySfxThenLoad(optionClickClip, hungrySceneName, 0.18f));
         step = Step.Done;
     }
 
     void OnStinky()
     {
-        PlaySfx(optionClickClip);   // optional click sound
-        if (!string.IsNullOrEmpty(stinkySceneName))
-            SceneManager.LoadScene(stinkySceneName);
+        // play click and then load so the SFX can be heard
+        StartCoroutine(PlaySfxThenLoad(optionClickClip, stinkySceneName, 0.18f));
         step = Step.Done;
+    }
+
+    IEnumerator PlaySfxThenLoad(AudioClip clip, string sceneName, float delaySeconds)
+    {
+        if (clip != null) PlaySfx(clip);
+        else Debug.LogWarning("PlaySfxThenLoad: clip is null for scene " + sceneName);
+
+        yield return new WaitForSecondsRealtime(delaySeconds);
+
+        if (!string.IsNullOrEmpty(sceneName))
+        {
+            Debug.Log("PlaySfxThenLoad: loading scene '" + sceneName + "' after " + delaySeconds + "s");
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            {
+                Debug.LogError("PlaySfxThenLoad: scene not found in Build Settings: " + sceneName);
+            }
+            SceneManager.LoadScene(sceneName);
+        }
     }
 
     // ====== Bubble helpers ======
