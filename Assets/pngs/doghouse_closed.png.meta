@@ -129,12 +129,12 @@ TextureImporter:
       name: doghouse_closed_0
       rect:
         serializedVersion: 2
-        x: 1472
-        y: 1583
-        width: 3418
-        height: 3743
+        x: 1464
+        y: 1578
+        width: 3433
+        height: 3752
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -147,11 +147,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: doghouse_bone
+      rect:
+        serializedVersion: 2
+        x: 2148
+        y: 4231
+        width: 1650
+        height: 1076
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f91f0da21e384e8388ec8709da19754
+      internalID: -796899753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 069a781de613c48789e8a93f281aa5a6
     internalID: 0
     vertices: []
     indices: 
@@ -159,8 +181,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
+      doghouse_bone: -796899753
       doghouse_closed_0: -9018932052262789414
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
