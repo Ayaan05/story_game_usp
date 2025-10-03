@@ -1,58 +1,73 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;   // 👈 needed for OnPointerClick
 
 public enum BubbleType { Small, Big }
 
-public class Bubble : MonoBehaviour
+[RequireComponent(typeof(SpriteRenderer), typeof(CircleCollider2D))]
+public class Bubble : MonoBehaviour, IPointerClickHandler
 {
     public static Action<Bubble> OnAnyPopped;
 
     [Header("Setup")]
     public BubbleType type = BubbleType.Small;
-    public float popScale = 1.25f;
-    public float popDuration = 0.12f;
-    public AudioSource sfx;                 // optional
+
+    [Header("Pop FX")]
+    public GameObject popFxPrefab;     // assign PopFX prefab
+    public Sprite popSprite;           // small/big pop sprite
+    public float popFxScale = 1f;      // per-type tweak
+
+    [Header("Audio (optional)")]
+    public AudioSource sfx;
 
     CircleCollider2D col;
-    Vector3 startScale;
+    SpriteRenderer sr;
     bool popped;
 
     void Awake()
     {
         col = GetComponent<CircleCollider2D>();
-        startScale = transform.localScale;
+        sr  = GetComponent<SpriteRenderer>();
+        if (col) col.isTrigger = true; // keep as you had it
     }
 
-    void OnMouseDown()                      // works for mouse & touch (with collider)
-    {
-        if (!popped) StartCoroutine(PopCo());
-    }
+    // PRIMARY: EventSystem click
+    public void OnPointerClick(PointerEventData eventData) => TryPop();
 
-    IEnumerator PopCo()
+    // optional fallback for editor convenience
+    void OnMouseDown() { TryPop(); Debug.Log($"CLICK {name}"); }
+
+    public void TryPop()
     {
+        if (popped) return;
         popped = true;
+
+        // disable interactions & hide bubble immediately
         if (col) col.enabled = false;
-        if (sfx) sfx.Play();
+        if (sr)  sr.enabled = false;
 
-        // quick “pop” scale animation
-        float t = 0f;
-        while (t < popDuration)
-        {
-            t += Time.deltaTime;
-            float k = t / popDuration;
-            float s = Mathf.Lerp(1f, popScale, k);
-            transform.localScale = startScale * s;
-            yield return null;
-        }
+        // spawn pop FX (independent object)
+// spawn pop FX (independent object)
+if (popFxPrefab)
+{
+    var fxGO = Instantiate(popFxPrefab, transform.position, Quaternion.identity);
+    var fx = fxGO.GetComponent<PopFX>();
+    if (fx) fx.Play(popSprite, popFxScale, GetRadiusWorld() * 0.8f); // 👈 key change
+}
 
+
+        // play pop sound without being cut off by Destroy
+        if (sfx && sfx.clip) AudioSource.PlayClipAtPoint(sfx.clip, transform.position, sfx.volume);
+
+        // notify & remove bubble
         OnAnyPopped?.Invoke(this);
         Destroy(gameObject);
     }
 
     public float GetRadiusWorld()
     {
-        var r = col ? col.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y) : 0.5f;
-        return r;
+        float scale = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
+        return col ? col.radius * scale : 0.5f * scale;
     }
 }

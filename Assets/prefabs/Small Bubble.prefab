@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   type: 0
-  popScale: 1.25
-  popDuration: 0.12
+  popFxPrefab: {fileID: 7566798585521269973, guid: bb4251875e7164cb4b51898b466e1fa3, type: 3}
+  popSprite: {fileID: 7969867121818429520, guid: 016d486b9a56b4696902492c66b32b40, type: 3}
+  popFxScale: 1
   sfx: {fileID: 0}
