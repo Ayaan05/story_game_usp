@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 6781282099098098063}
   - component: {fileID: 8186053159072079645}
   - component: {fileID: -7620026746973535992}
-  - component: {fileID: 4957353642144848240}
   - component: {fileID: 5023126695551958321}
+  - component: {fileID: 2264370401190278213}
   m_Layer: 0
   m_Name: sparkles
   m_TagString: Untagged
@@ -334,25 +334,6 @@ PolygonCollider2D:
       - {x: 0.76187503, y: -3.0475001}
       - {x: 0.76187503, y: -2.6665626}
   m_UseDelaunayMesh: 0
---- !u!114 &4957353642144848240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5065185621050550251}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a2c2fb2926f341ca9e6bcecd57dd481, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::button
-  sceneToLoad: Main_Scene
-  loadDelay: 0.18
-  sfxSource: {fileID: 0}
-  clickClip: {fileID: 0}
-  sfxVolume: 1
-  autoWireButton: 1
-  replaceExistingListeners: 1
 --- !u!114 &5023126695551958321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,3 +378,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2264370401190278213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5065185621050550251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b56ffff2465c4cb79f41f05454c1cff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAgainButton
+  autoWire: 1
+  replaceExistingListeners: 1
+  reloadDelay: 0.12
+  reloadMode: 1
+  sceneName: end_scene
+  sceneBuildIndex: 0
+  debugLogs: 1
