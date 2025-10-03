@@ -47,7 +47,11 @@ public class BoneWiggle : MonoBehaviour, IPointerClickHandler
         yield return StartCoroutine(Pop(popScale, popTime));
 
         // sfx
-        if (sfxSource && wiggleClip) sfxSource.PlayOneShot(wiggleClip, sfxVolume);
+        if (wiggleClip)
+        {
+            EnsureSfxSource();
+            if (sfxSource) sfxSource.PlayOneShot(wiggleClip, sfxVolume);
+        }
 
         // wiggle around Z
         Quaternion startRot = transform.localRotation;
@@ -96,5 +100,21 @@ public class BoneWiggle : MonoBehaviour, IPointerClickHandler
         }
         // snap back
         transform.localScale = baseScale;
+    }
+
+    void EnsureSfxSource()
+    {
+        if (sfxSource != null) return;
+
+        var srcs = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+        foreach (var s in srcs)
+        {
+            if (!s.loop)
+            {
+                sfxSource = s;
+                return;
+            }
+        }
+        if (srcs.Length > 0) sfxSource = srcs[0];
     }
 }

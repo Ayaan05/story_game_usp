@@ -2678,6 +2678,14 @@ PrefabInstance:
       propertyPath: m_Points.m_Paths.Array.data[2].Array.data[10].y
       value: 26.895458
       objectReference: {fileID: 0}
+    - target: {fileID: 2264370401190278213, guid: e2d1f921839fb49cfb8c5245b8fbd43b, type: 3}
+      propertyPath: miniGame
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2264370401190278213, guid: e2d1f921839fb49cfb8c5245b8fbd43b, type: 3}
+      propertyPath: notifyGameManager
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5065185621050550251, guid: e2d1f921839fb49cfb8c5245b8fbd43b, type: 3}
       propertyPath: m_Name
       value: sparkles

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;   // New Input System
 [RequireComponent(typeof(Collider2D))]
 public class SprinklerInteractive : MonoBehaviour
 {
-    [Header("Move (Left-drag on body) / Rotate (Left-drag near nozzle)")]
+    [Header("Move (Left-drag anywhere)")]
     [SerializeField] float rotateSpeed = 8f;
     [SerializeField] float minAngle = -0.34f;   // your “up” pose (Z)
     [SerializeField] float maxAngle = 26.93f;   // your “down” pose (Z)
@@ -16,10 +16,6 @@ public class SprinklerInteractive : MonoBehaviour
     [SerializeField] float maxX =  9f;
     [SerializeField] float minY = -2f;          // NEW: vertical limits
     [SerializeField] float maxY =  2f;
-
-    [Header("Rotation hit test")]
-    [Tooltip("World units radius around the nozzle that counts as ROTATE.")]
-    [SerializeField] float rotateRadius = 0.7f;
 
     [Header("Art Alignment")]
     [Tooltip("Spout direction relative to the object's +X. Right=0, Up=90, Left=180, Down=-90.")]
@@ -38,12 +34,15 @@ public class SprinklerInteractive : MonoBehaviour
     [SerializeField] float dropDrag = 0.7f;
     [SerializeField] bool instantFirstDrop = true;
 
+    [Header("Drop Audio")]
+    [SerializeField] AudioSource dropSfxSource;
+    [SerializeField] AudioClip dropClip;
+    [Range(0f, 1f)]
+    [SerializeField] float dropSfxVolume = 1f;
+
     [Header("Stop At Grass")]
     [SerializeField] bool useGroundStop = true;
     [SerializeField] Transform groundMarker;  // empty placed on grass Y
-
-    enum DragMode { None, Move, Rotate }
-    DragMode mode = DragMode.None;
 
     bool selected;
     Camera cam;
@@ -71,12 +70,9 @@ public class SprinklerInteractive : MonoBehaviour
         {
             bool hitSelf = Physics2D.OverlapPointAll(mouseWorld, myLayerMask).Any(h => h == myCol);
             selected = hitSelf;
-
             if (selected)
             {
-                mode = DragMode.Move;
-                if (nozzlePos && Vector2.Distance(nozzlePos.position, mouseWorld) <= rotateRadius)
-                    mode = DragMode.Rotate;
+                // pointer stays captured so rotation can follow drag immediately
             }
         }
 
@@ -84,26 +80,37 @@ public class SprinklerInteractive : MonoBehaviour
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
             selected = false;
-            mode = DragMode.None;
         }
 
         // DRAG
         if (selected && Mouse.current.leftButton.isPressed)
         {
-            if (mode == DragMode.Rotate)
+            // Move in BOTH X and Y, clamped to bounds
+            float newX = Mathf.Clamp(mouseWorld.x, minX, maxX);
+            float newY = Mathf.Clamp(mouseWorld.y, minY, maxY);
+            Vector3 newPos = new Vector3(newX, newY, transform.position.z);
+
+            Vector2 dragDelta = newPos - transform.position;
+
+            transform.position = newPos;
+
+            // Rotate based on drag direction when significant movement occurs
+            if (dragDelta.sqrMagnitude > 0.0001f)
             {
-                Vector2 dir = mouseWorld - transform.position;
+                Vector2 dir = dragDelta.normalized;
                 float targetZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                float z = Mathf.LerpAngle(transform.eulerAngles.z, targetZ, Time.deltaTime * rotateSpeed);
+
+                float z = Mathf.LerpAngle(transform.eulerAngles.z, targetZ, rotateSpeed * Time.deltaTime);
                 z = ClampAngle(z, minAngle, maxAngle);
                 transform.rotation = Quaternion.Euler(0f, 0f, z);
             }
-            else if (mode == DragMode.Move)
+            else if ((mouseWorld - transform.position).sqrMagnitude > 0.0001f)
             {
-                // Move in BOTH X and Y, clamped to bounds
-                float newX = Mathf.Clamp(mouseWorld.x, minX, maxX);
-                float newY = Mathf.Clamp(mouseWorld.y, minY, maxY);
-                transform.position = new Vector3(newX, newY, transform.position.z);
+                Vector2 dir = (mouseWorld - transform.position).normalized;
+                float targetZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                float z = Mathf.LerpAngle(transform.eulerAngles.z, targetZ, rotateSpeed * Time.deltaTime);
+                z = ClampAngle(z, minAngle, maxAngle);
+                transform.rotation = Quaternion.Euler(0f, 0f, z);
             }
         }
 
@@ -145,6 +152,8 @@ public class SprinklerInteractive : MonoBehaviour
             rb.AddForce(dir * launchSpeed, ForceMode2D.Impulse);
         }
 
+        PlayDropSfx();
+
         if (useGroundStop && groundMarker && drop.TryGetComponent<WaterDrop>(out var wd))
             wd.Init(groundMarker.position.y);
     }
@@ -163,6 +172,33 @@ public class SprinklerInteractive : MonoBehaviour
         return Mathf.Clamp(z, min, max);
     }
 
+    void PlayDropSfx()
+    {
+        if (dropClip == null) return;
+
+        if (dropSfxSource == null)
+        {
+            var sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+            foreach (var s in sources)
+            {
+                if (!s.loop)
+                {
+                    dropSfxSource = s;
+                    break;
+                }
+            }
+            if (dropSfxSource == null && sources.Length > 0)
+            {
+                dropSfxSource = sources[0];
+            }
+        }
+
+        if (dropSfxSource != null)
+        {
+            dropSfxSource.PlayOneShot(dropClip, dropSfxVolume);
+        }
+    }
+
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
@@ -170,9 +206,6 @@ public class SprinklerInteractive : MonoBehaviour
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(nozzlePos.position, nozzlePos.position + (Vector3)GetOutDirection() * 0.6f);
-
-            Gizmos.color = new Color(1f, 0.5f, 0f, 0.25f);
-            Gizmos.DrawWireSphere(nozzlePos.position, rotateRadius); // rotate zone
         }
         if (useGroundStop && groundMarker)
         {

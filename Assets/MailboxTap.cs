@@ -65,7 +65,10 @@ public class MailboxTap : MonoBehaviour, IPointerClickHandler
 
     void Play(AudioClip clip)
     {
-        if (sfxSource && clip) sfxSource.PlayOneShot(clip, sfxVolume);
+        if (!clip) return;
+
+        EnsureSfxSource();
+        if (sfxSource) sfxSource.PlayOneShot(clip, sfxVolume);
     }
 
     System.Collections.IEnumerator Wiggle()
@@ -112,5 +115,21 @@ public class MailboxTap : MonoBehaviour, IPointerClickHandler
             yield return null;
         }
         lidTransform.localRotation = to;
+    }
+
+    void EnsureSfxSource()
+    {
+        if (sfxSource != null) return;
+
+        var srcs = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+        foreach (var s in srcs)
+        {
+            if (!s.loop)
+            {
+                sfxSource = s;
+                return;
+            }
+        }
+        if (srcs.Length > 0) sfxSource = srcs[0];
     }
 }

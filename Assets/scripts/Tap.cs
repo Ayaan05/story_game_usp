@@ -31,6 +31,12 @@ public class Tap : MonoBehaviour
     [Tooltip("Enable debug logs for tap events and state changes.")]
     public bool debugLogs = false;
 
+    [Header("Play Again Flow")]
+    [Tooltip("If true, play_again loads a specific scene (defaults to Main) and resets GameManager.")]
+    public bool useGameManagerOnPlayAgain = false;
+    [Tooltip("Scene to load when useGameManagerOnPlayAgain is true.")]
+    public string playAgainSceneName = GameManager.MAIN_SCENE;
+
     void Start()
     {
         // Make sure everything starts hidden
@@ -49,8 +55,20 @@ public class Tap : MonoBehaviour
                 {
                     if (debugLogs) Debug.Log("TapCatcher: play_again clicked");
                     PlaySfx(clickClip);
-                    var scene = SceneManager.GetActiveScene();
-                    SceneManager.LoadScene(scene.buildIndex);
+                    if (useGameManagerOnPlayAgain)
+                    {
+                        string target = string.IsNullOrEmpty(playAgainSceneName) ? GameManager.MAIN_SCENE : playAgainSceneName;
+                        if (GameManager.Instance != null)
+                        {
+                            GameManager.Instance.ResetProgress();
+                        }
+                        SceneManager.LoadScene(target);
+                    }
+                    else
+                    {
+                        var scene = SceneManager.GetActiveScene();
+                        SceneManager.LoadScene(scene.buildIndex);
+                    }
                 });
             }
         }

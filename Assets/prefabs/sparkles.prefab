@@ -398,6 +398,9 @@ MonoBehaviour:
   sceneName: end_scene
   sceneBuildIndex: 0
   debugLogs: 1
+  notifyGameManager: 1
+  miniGame: 2
+  resetGameManager: 0
 --- !u!114 &3104410141664570663
 MonoBehaviour:
   m_ObjectHideFlags: 0

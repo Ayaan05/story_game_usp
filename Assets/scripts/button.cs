@@ -22,6 +22,13 @@ public class button : MonoBehaviour
     [Tooltip("If true, existing OnClick listeners will be removed when auto-wiring.")]
     public bool replaceExistingListeners = true;
 
+    [Header("GameManager Integration")]
+    [Tooltip("If true, will notify GameManager that a mini game has been completed instead of loading sceneToLoad directly.")]
+    public bool notifyGameManager = false;
+    public MiniGame miniGame = MiniGame.None;
+    [Tooltip("If true, GameManager.ResetProgress() will be called before loading the scene (useful for play again buttons).")]
+    public bool resetGameManager = false;
+
     void Awake()
     {
         if (!autoWireButton) return;
@@ -87,6 +94,42 @@ public class button : MonoBehaviour
             Debug.LogError("button: scene not in Build Settings: " + sceneToLoad);
         }
 
+        var gm = GameManager.Instance;
+
+        if (resetGameManager && gm != null)
+        {
+            gm.ResetProgress();
+        }
+
+        if (notifyGameManager)
+        {
+            if (gm == null)
+            {
+                Debug.LogWarning("button: notifyGameManager is enabled but no GameManager is present.");
+            }
+            else
+            {
+                MiniGame target = miniGame != MiniGame.None ? miniGame : GuessMiniGameFromScene(sceneToLoad);
+                if (target == MiniGame.None)
+                {
+                    Debug.LogWarning("button: notifyGameManager is enabled but miniGame is None and could not be inferred from sceneToLoad.");
+                }
+                else
+                {
+                    gm.CompleteMiniGame(target);
+                    yield break;
+                }
+            }
+        }
+
         SceneManager.LoadScene(sceneToLoad);
+    }
+
+    MiniGame GuessMiniGameFromScene(string sceneName)
+    {
+        if (string.IsNullOrEmpty(sceneName)) return MiniGame.None;
+        if (sceneName == GameManager.BATH_SCENE || sceneName == "BathScene") return MiniGame.Bath;
+        if (sceneName == GameManager.FOOD_SCENE || sceneName == "FoodScene") return MiniGame.Food;
+        return MiniGame.None;
     }
 }

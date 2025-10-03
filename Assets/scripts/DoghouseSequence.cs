@@ -32,6 +32,11 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Button hungryButton;   // Button (TMP) in scene under Canvas
     [SerializeField] private Button stinkyButton;   // Button (TMP) in scene under Canvas
 
+    [Header("Completion Visuals (optional)")]
+    [SerializeField] private GameObject hungryCompletedMarker;
+    [SerializeField] private GameObject stinkyCompletedMarker;
+    [SerializeField, Range(0.1f, 1f)] private float disabledButtonAlpha = 0.45f;
+
     [Header("Scenes To Load")]
     [SerializeField] private string hungrySceneName = "FoodScene";
     [SerializeField] private string stinkySceneName = "BathScene";
@@ -107,6 +112,9 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     // Track spawned bubbles to clear on next click
     private readonly List<GameObject> activeBubbles = new List<GameObject>();
 
+    Vector3 hungryBaseScale = Vector3.one;
+    Vector3 stinkyBaseScale = Vector3.one;
+
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
@@ -153,12 +161,16 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             hungryButton.gameObject.SetActive(false);
             hungryButton.onClick.RemoveAllListeners();
             hungryButton.onClick.AddListener(OnHungry);
+            if (hungryButton.transform is RectTransform rt)
+                hungryBaseScale = rt.localScale;
         }
         if (stinkyButton)
         {
             stinkyButton.gameObject.SetActive(false);
             stinkyButton.onClick.RemoveAllListeners();
             stinkyButton.onClick.AddListener(OnStinky);
+            if (stinkyButton.transform is RectTransform rt)
+                stinkyBaseScale = rt.localScale;
         }
 
         // Ensure we have an sfx source assigned; do not override if the designer assigned one
@@ -186,6 +198,19 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
                 DontDestroyOnLoad(sfxGo);
                 Debug.Log("DoghouseSequence: created dedicated sfxSource on " + sfxGo.name);
             }
+        }
+    }
+
+    void Start()
+    {
+        var gm = GameManager.Instance;
+        if (gm == null) return;
+
+        ApplyCompletionStateToButtons(gm);
+
+        if (gm.ConsumeShowOptionsFlag())
+        {
+            SkipToChoiceState(gm);
         }
     }
 
@@ -275,6 +300,9 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
         PlaySfx(optionsAppearClip); // 4th click: options cloud appears
+
+        if (GameManager.Instance != null)
+            ApplyCompletionStateToButtons(GameManager.Instance);
     }
 
     void OnHungry()
@@ -305,6 +333,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
             {
                 Debug.LogError("PlaySfxThenLoad: scene not found in Build Settings: " + sceneName);
             }
+
             SceneManager.LoadScene(sceneName);
         }
     }
@@ -353,6 +382,70 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
         activeBubbles.Add(inst.gameObject);
         // fade+pop in
         StartCoroutine(FadeAndPopIn(inst, fadeTime));
+    }
+
+    void SkipToChoiceState(GameManager gm)
+    {
+        StopAllCoroutines();
+        ClearBubblesImmediate();
+
+        if (openSprite) sr.sprite = openSprite;
+
+        step = Step.ChooseFeeling;
+
+        RevealButtonImmediate(hungryButton, hungryBaseScale, hungryBtnOffset);
+        RevealButtonImmediate(stinkyButton, stinkyBaseScale, stinkyBtnOffset);
+
+        ApplyCompletionStateToButtons(gm);
+    }
+
+    void RevealButtonImmediate(Button button, Vector3 baseScale, Vector2 offset)
+    {
+        if (!button) return;
+
+        var rt = button.transform as RectTransform;
+        if (rt)
+        {
+            PlaceUIOverWorld(rt, dogTransform, offset);
+            rt.localScale = baseScale;
+        }
+
+        button.gameObject.SetActive(true);
+        button.interactable = true;
+
+        var cg = EnsureCanvasGroup(button.gameObject);
+        cg.alpha = 1f;
+    }
+
+    void ApplyCompletionStateToButtons(GameManager gm)
+    {
+        bool bathDone = gm.IsMiniGameComplete(MiniGame.Bath);
+        bool foodDone = gm.IsMiniGameComplete(MiniGame.Food);
+
+        ApplyCompletionStateToButton(hungryButton, hungryCompletedMarker, !foodDone);
+        ApplyCompletionStateToButton(stinkyButton, stinkyCompletedMarker, !bathDone);
+    }
+
+    void ApplyCompletionStateToButton(Button button, GameObject marker, bool available)
+    {
+        if (!button) return;
+
+        button.interactable = available;
+
+        var cg = EnsureCanvasGroup(button.gameObject);
+        cg.alpha = available ? 1f : disabledButtonAlpha;
+
+        if (marker) marker.SetActive(!available);
+    }
+
+    void ClearBubblesImmediate()
+    {
+        if (activeBubbles.Count == 0) return;
+        foreach (var go in activeBubbles)
+        {
+            if (go) Destroy(go);
+        }
+        activeBubbles.Clear();
     }
 
     IEnumerator ClearBubblesSmooth()

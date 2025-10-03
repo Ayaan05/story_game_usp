@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class PlayAgainButton : MonoBehaviour
 {
@@ -20,6 +21,13 @@ public class PlayAgainButton : MonoBehaviour
     public int sceneBuildIndex = 0;
     [Header("Debug")]
     public bool debugLogs = true;
+
+    [Header("GameManager Integration")]
+    [Tooltip("If true, will notify GameManager that a mini game finished instead of loading via reloadMode.")]
+    public bool notifyGameManager = false;
+    public MiniGame miniGame = MiniGame.None;
+    [Tooltip("If true, GameManager.ResetProgress() is called before loading. Use on Play Again buttons.")]
+    public bool resetGameManager = false;
 
     private Button wiredButton;
 
@@ -64,6 +72,34 @@ public class PlayAgainButton : MonoBehaviour
     IEnumerator ReloadAfterDelay(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
+
+        var gm = GameManager.Instance;
+
+        if (resetGameManager && gm != null)
+        {
+            gm.ResetProgress();
+        }
+
+        if (notifyGameManager)
+        {
+            if (gm == null)
+            {
+                Debug.LogWarning("PlayAgainButton: notifyGameManager is enabled but no GameManager exists.");
+            }
+            else
+            {
+                MiniGame target = miniGame != MiniGame.None ? miniGame : GuessMiniGameFromReloadTarget();
+                if (target == MiniGame.None)
+                {
+                    Debug.LogWarning("PlayAgainButton: notifyGameManager is enabled but miniGame is None and could not be inferred.");
+                }
+                else
+                {
+                    gm.CompleteMiniGame(target);
+                    yield break;
+                }
+            }
+        }
 
         switch (reloadMode)
         {
@@ -117,5 +153,34 @@ public class PlayAgainButton : MonoBehaviour
         {
             Debug.Log("PlayAgainButton: no CanvasGroup on parents");
         }
+    }
+
+    MiniGame GuessMiniGameFromReloadTarget()
+    {
+        switch (reloadMode)
+        {
+            case ReloadMode.SceneName:
+                return GuessMiniGameFromSceneName(sceneName);
+            case ReloadMode.BuildIndex:
+                if (sceneBuildIndex >= 0 && sceneBuildIndex < SceneManager.sceneCountInBuildSettings)
+                {
+                    string path = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
+                    string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                    return GuessMiniGameFromSceneName(name);
+                }
+                break;
+            case ReloadMode.CurrentScene:
+                var scene = SceneManager.GetActiveScene();
+                return GuessMiniGameFromSceneName(scene.name);
+        }
+        return MiniGame.None;
+    }
+
+    MiniGame GuessMiniGameFromSceneName(string candidate)
+    {
+        if (string.IsNullOrEmpty(candidate)) return MiniGame.None;
+        if (candidate == GameManager.BATH_SCENE || candidate == "BathScene") return MiniGame.Bath;
+        if (candidate == GameManager.FOOD_SCENE || candidate == "FoodScene") return MiniGame.Food;
+        return MiniGame.None;
     }
 }
