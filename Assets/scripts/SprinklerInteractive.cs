@@ -8,13 +8,17 @@ public class SprinklerInteractive : MonoBehaviour
 {
     [Header("Move (Left-drag on body) / Rotate (Left-drag near nozzle)")]
     [SerializeField] float rotateSpeed = 8f;
-    [SerializeField] float minAngle = -0.34f;   // your “up” pose
-    [SerializeField] float maxAngle = 26.93f;   // your “down” pose
-    [SerializeField] float minX = -20f;         // <<< set your lateral bounds here
-    [SerializeField] float maxX =  20f;
+    [SerializeField] float minAngle = -0.34f;   // your “up” pose (Z)
+    [SerializeField] float maxAngle = 26.93f;   // your “down” pose (Z)
+
+    [Header("Movement bounds")]
+    [SerializeField] float minX = -9f;
+    [SerializeField] float maxX =  9f;
+    [SerializeField] float minY = -2f;          // NEW: vertical limits
+    [SerializeField] float maxY =  2f;
 
     [Header("Rotation hit test")]
-    [Tooltip("Click distance (in world units) from nozzle to treat a drag as ROTATE.")]
+    [Tooltip("World units radius around the nozzle that counts as ROTATE.")]
     [SerializeField] float rotateRadius = 0.7f;
 
     [Header("Art Alignment")]
@@ -22,12 +26,12 @@ public class SprinklerInteractive : MonoBehaviour
     [SerializeField] float outAngleDeg = 180f;
 
     [Header("Drip Gate (must face DOWN)")]
-    [Tooltip("How downward the spout must be before dripping (0..1). Lower starts sooner.")]
+    [Tooltip("How downward the spout must be before dripping (0..1). Lower triggers sooner.")]
     [SerializeField, Range(0f, 1f)] float minDownY = 0.6f;
 
     [Header("Water Drip (slow, instant first drop)")]
-    [SerializeField] Transform nozzlePos;     // position at mouth
-    [SerializeField] GameObject dropPrefab;   // water_drops prefab
+    [SerializeField] Transform nozzlePos;     // at mouth of spout
+    [SerializeField] GameObject dropPrefab;
     [SerializeField] float dripInterval = 0.32f;
     [SerializeField] float launchSpeed = 0.6f;
     [SerializeField] float dropGravity = 0.7f;
@@ -36,7 +40,7 @@ public class SprinklerInteractive : MonoBehaviour
 
     [Header("Stop At Grass")]
     [SerializeField] bool useGroundStop = true;
-    [SerializeField] Transform groundMarker;  // empty at grass Y
+    [SerializeField] Transform groundMarker;  // empty placed on grass Y
 
     enum DragMode { None, Move, Rotate }
     DragMode mode = DragMode.None;
@@ -62,10 +66,12 @@ public class SprinklerInteractive : MonoBehaviour
         Vector3 mouseWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorld.z = 0f;
 
-        // --- press: pick object and decide mode (rotate vs move) ---
+        // PRESS: pick & decide mode based on proximity to nozzle
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            selected = Physics2D.OverlapPointAll(mouseWorld, myLayerMask).Any(h => h == myCol);
+            bool hitSelf = Physics2D.OverlapPointAll(mouseWorld, myLayerMask).Any(h => h == myCol);
+            selected = hitSelf;
+
             if (selected)
             {
                 mode = DragMode.Move;
@@ -74,14 +80,14 @@ public class SprinklerInteractive : MonoBehaviour
             }
         }
 
-        // --- release: clear mode/selection ---
+        // RELEASE
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
             selected = false;
             mode = DragMode.None;
         }
 
-        // --- drag behavior ---
+        // DRAG
         if (selected && Mouse.current.leftButton.isPressed)
         {
             if (mode == DragMode.Rotate)
@@ -94,12 +100,14 @@ public class SprinklerInteractive : MonoBehaviour
             }
             else if (mode == DragMode.Move)
             {
+                // Move in BOTH X and Y, clamped to bounds
                 float newX = Mathf.Clamp(mouseWorld.x, minX, maxX);
-                transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+                float newY = Mathf.Clamp(mouseWorld.y, minY, maxY);
+                transform.position = new Vector3(newX, newY, transform.position.z);
             }
         }
 
-        // --- drip only when spout faces strongly DOWN ---
+        // DRIP only when the spout faces strongly DOWN
         Vector2 outDir = GetOutDirection();
         bool pointingDown = outDir.y <= -minDownY;
         if (pointingDown)
