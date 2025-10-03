@@ -32,7 +32,14 @@ public class SimpleLoopMusic : MonoBehaviour
         var src = GetComponent<AudioSource>();
         src.clip = clip;
         src.loop = true;
+        src.playOnAwake = false;
+        src.volume = volume;
+
+        // prefer to mark this as music so other scripts can pick SFX sources first
+        gameObject.tag = "Music";
+
         src.Play();   // <-- make sure we actually start after setting the clip
+        Debug.Log("SimpleLoopMusic: started generated music on " + gameObject.name + " with volume " + volume);
 
     }
 }
