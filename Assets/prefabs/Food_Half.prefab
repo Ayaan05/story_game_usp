@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 251056501879460715}
   - component: {fileID: 2455951141405297309}
   - component: {fileID: 6160390649792500711}
+  - component: {fileID: 1599904402804531517}
   m_Layer: 0
   m_Name: Food_Half
   m_TagString: Untagged
@@ -264,3 +265,18 @@ MonoBehaviour:
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+--- !u!114 &1599904402804531517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080709091962856353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da6132c1347b4d6dbcff43b8f88ee5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySfxOnStart
+  clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
+  volume: 1
+  maxSeconds: 1.5
