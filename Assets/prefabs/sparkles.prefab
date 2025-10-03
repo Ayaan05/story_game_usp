@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5023126695551958321}
   - component: {fileID: 2264370401190278213}
   - component: {fileID: 3104410141664570663}
+  - component: {fileID: -7939912497927779036}
   m_Layer: 0
   m_Name: sparkles
   m_TagString: Untagged
@@ -416,3 +417,22 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 7e2966ce082ab4066a4f493a64beb4a0, type: 3}
   volume: 1
   maxSeconds: 0
+--- !u!114 &-7939912497927779036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5065185621050550251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0540c9c58adc14c42a742b45956d1ab4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SparklesShimmer
+  alphaMin: 0.5
+  alphaMax: 1
+  shimmerHz: 3
+  scalePulse: 0.05
+  pulseHz: 0.5
+  driftRadius: 0.02
+  driftHz: 0.4
