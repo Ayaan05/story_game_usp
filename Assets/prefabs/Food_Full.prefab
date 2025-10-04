@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeInOnEnable
-  duration: 0.6
+  duration: 0.4
   startAlpha: 0
   endAlpha: 1
   ease:
@@ -320,5 +320,3 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  forceSpriteDefaultMaterial: 1
-  forceWhiteRGB: 1
