@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6683417932896458594}
   - component: {fileID: -5972103935789825089}
   - component: {fileID: -2253719391118142075}
+  - component: {fileID: -7644846693121065094}
   m_Layer: 0
   m_Name: Food_Full
   m_TagString: Untagged
@@ -280,3 +281,44 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
   volume: 1
   maxSeconds: 1.5
+--- !u!114 &-7644846693121065094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9059753268149791975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeInOnEnable
+  duration: 0.6
+  startAlpha: 0
+  endAlpha: 1
+  ease:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  forceSpriteDefaultMaterial: 1
+  forceWhiteRGB: 1
