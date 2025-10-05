@@ -2,119 +2,96 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Collider2D))]
-public class BoneWiggle : MonoBehaviour, IPointerClickHandler
+public class BoneSpringBounce : MonoBehaviour, IPointerClickHandler
 {
-    [Header("Wiggle")]
-    [SerializeField, Range(2f, 30f)] float wiggleAngle = 12f;   // degrees (± around Z)
-    [SerializeField, Range(0.05f, 0.6f)] float wiggleTime = 0.25f;
-    [SerializeField, Range(1, 5)] int cycles = 2;
+    public enum KickMode { Velocity, Height }
 
-    [Header("Optional pop")]
-    [SerializeField, Range(0.9f, 1.2f)] float popScale = 1.04f; // tiny scale pop
-    [SerializeField, Range(0.05f, 0.4f)] float popTime = 0.12f;
+    [Header("Kick Mode")]
+    [SerializeField] KickMode kickMode = KickMode.Height;
 
-    [Header("Audio (optional)")]
-    [SerializeField] AudioSource sfxSource;        // 2D source on this object or parent
-    [SerializeField] AudioClip wiggleClip;         // e.g. pen-click-2-411631
-    [SerializeField, Range(0f, 1f)] float sfxVolume = 1f;
+    [Header("Kick (Velocity mode)")]
+    [SerializeField, Range(0.1f, 50f)] float kickVelocity = 6f;
 
-    bool busy;
+    [Header("Kick (Height mode)")]
+    [SerializeField, Range(0.01f, 1f)] float kickHeightPercent = 0.30f;
 
-    void Reset()
-    {
-        // If you forget to add a collider, try to add one sized to the sprite.
-        if (!TryGetComponent<Collider2D>(out var _))
-        {
-            var col = gameObject.AddComponent<BoxCollider2D>();
-            var sr = GetComponent<SpriteRenderer>();
-            if (sr && col is BoxCollider2D bc)
-                bc.size = sr.bounds.size; // rough fit; tweak in Inspector
-        }
-    }
+    [Header("Spring Back")]
+    [SerializeField, Range(0.5f, 8f)]  float springFrequency = 2.5f;
+    [SerializeField, Range(0f, 1.2f)]  float dampingRatio   = 0.35f;
+    [SerializeField, Range(0.2f, 3f)]  float maxSettleTime  = 1.5f;
+
+    [Header("Timing")]
+    [Tooltip("Values >1 slow the motion; <1 speed it up.")]
+    [SerializeField, Range(0.25f, 4f)] float timeStretch = 2f;
+
+    [Header("Settle Thresholds")]
+    [SerializeField, Range(0.0005f, 0.05f)] float posEps   = 0.002f;
+    [SerializeField, Range(0.002f, 0.5f)]  float speedEps = 0.02f;
+
+    [Header("Optional SFX")]
+    [SerializeField] AudioSource sfx;
+    [SerializeField] AudioClip clickClip;
+    [SerializeField, Range(0f,1f)] float sfxVolume = 1f;
+
+    Vector3 baseLocalPos;
+    Coroutine anim;
+
+    void OnEnable() => baseLocalPos = transform.localPosition;
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // Ensure we only react if THIS object was hit (not background doghouse).
         if (eventData.pointerCurrentRaycast.gameObject != gameObject) return;
-        if (!busy) StartCoroutine(WiggleRoutine());
+
+        if (anim != null) StopCoroutine(anim);
+        anim = StartCoroutine(BounceRoutine());
+
+        if (sfx && clickClip) sfx.PlayOneShot(clickClip, sfxVolume);
     }
 
-    System.Collections.IEnumerator WiggleRoutine()
+    System.Collections.IEnumerator BounceRoutine()
     {
-        busy = true;
+        float y = 0f, v = 0f;
 
-        // optional pop
-        yield return StartCoroutine(Pop(popScale, popTime));
-
-        // sfx
-        if (wiggleClip)
+        if (kickMode == KickMode.Velocity)
         {
-            EnsureSfxSource();
-            if (sfxSource) sfxSource.PlayOneShot(wiggleClip, sfxVolume);
+            v = kickVelocity;
+        }
+        else
+        {
+            float worldH = 1f;
+            var sr = GetComponent<SpriteRenderer>();
+            if (sr) worldH = Mathf.Max(0.0001f, sr.bounds.size.y);
+            float localH = worldH / Mathf.Max(0.0001f, transform.lossyScale.y);
+            y = kickHeightPercent * localH;
         }
 
-        // wiggle around Z
-        Quaternion startRot = transform.localRotation;
-        float half = wiggleTime / (cycles * 2f);
+        float w = 2f * Mathf.PI * Mathf.Max(0.01f, springFrequency);
+        float k = w * w;
+        float c = 2f * dampingRatio * w;
 
-        for (int i = 0; i < cycles; i++)
-        {
-            yield return StartCoroutine(RotateDelta(+wiggleAngle, half));
-            yield return StartCoroutine(RotateDelta(-wiggleAngle * 2f, half * 2f));
-            yield return StartCoroutine(RotateDelta(+wiggleAngle, half));
-        }
-
-        // settle back exactly
-        transform.localRotation = startRot;
-        busy = false;
-    }
-
-    System.Collections.IEnumerator RotateDelta(float deltaZ, float dur)
-    {
         float t = 0f;
-        float startZ = transform.localEulerAngles.z;
-        float endZ = startZ + deltaZ;
+        float allow = maxSettleTime * Mathf.Max(0.01f, timeStretch);
 
-        while (t < dur)
+        while (t < allow)
         {
-            t += Time.unscaledDeltaTime;
-            float z = Mathf.Lerp(startZ, endZ, t / dur);
-            var e = transform.localEulerAngles;
-            e.z = z;
-            transform.localEulerAngles = e;
+            // ↓ slow time progression by timeStretch
+            float dt = Time.unscaledDeltaTime / Mathf.Max(0.01f, timeStretch);
+            t += dt;
+
+            float a = -k * y - c * v;
+            v += a * dt;
+            y += v * dt;
+
+            var p = baseLocalPos; p.y += y;
+            transform.localPosition = p;
+
+            if (Mathf.Abs(y) < posEps && Mathf.Abs(v) < speedEps)
+                break;
+
             yield return null;
         }
-    }
 
-    System.Collections.IEnumerator Pop(float targetMul, float dur)
-    {
-        Vector3 baseScale = transform.localScale;
-        float t = 0f;
-        while (t < dur)
-        {
-            t += Time.unscaledDeltaTime;
-            float u = Mathf.Clamp01(t / dur);
-            float s = Mathf.Lerp(1f, targetMul, u);
-            transform.localScale = baseScale * s;
-            yield return null;
-        }
-        // snap back
-        transform.localScale = baseScale;
-    }
-
-    void EnsureSfxSource()
-    {
-        if (sfxSource != null) return;
-
-        var srcs = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
-        foreach (var s in srcs)
-        {
-            if (!s.loop)
-            {
-                sfxSource = s;
-                return;
-            }
-        }
-        if (srcs.Length > 0) sfxSource = srcs[0];
+        transform.localPosition = baseLocalPos;
+        anim = null;
     }
 }
