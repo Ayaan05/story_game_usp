@@ -517,6 +517,31 @@ MonoBehaviour:
   kickMode: 1
   kickVelocity: 4.16
   kickHeightPercent: 0.3
+  kickEaseTime: 0.09
+  kickEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   springFrequency: 3.8
   dampingRatio: 0.48
   maxSettleTime: 1.5
@@ -1319,27 +1344,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e53dd96aaa04ae988f0e5674d52ed4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SprinklerInteractive
-  rotateSpeed: 8
-  minAngle: -0.2
-  maxAngle: 26.93
-  minX: -1
-  maxX: 16
-  minY: 94
-  maxY: 106
-  outAngleDeg: 180
-  minDownY: 0.34
-  nozzlePos: {fileID: 2067852766}
-  dropPrefab: {fileID: 6229120530440640603, guid: a4baf3da6e20d44bd86e42a10f4cb893, type: 3}
-  dripInterval: 0.32
-  launchSpeed: 0.6
-  dropGravity: 0.7
-  dropDrag: 0.7
-  instantFirstDrop: 1
-  dropSfxSource: {fileID: 0}
-  dropClip: {fileID: 0}
-  dropSfxVolume: 1
-  useGroundStop: 1
-  groundMarker: {fileID: 2111644602}
+  moveLerp: 18
+  clampToCamera: 1
+  screenPadding: 0.2
+  restAngleZ: 0
+  maxTilt: 25
+  tiltPerUnitSpeed: 10
+  tiltLerp: 14
+  returnLerp: 6
+  nozzle: {fileID: 2067852766}
+  dropletsPrefab: {fileID: 6229120530440640603, guid: a4baf3da6e20d44bd86e42a10f4cb893, type: 3}
+  spraySpeedThreshold: 0.25
+  dropsPerSecond: 13
+  dropletSpeed: 6
+  dropLifetime: 2.5
+  spread: 12
+  grassKillLine: {fileID: 2111644602}
+  dropletScale: 1.6
+  particleSizeMult: 1.6
+  safeZ: 0
+  clampMin: {x: -9, y: -2}
+  clampMax: {x: 9, y: 2}
 --- !u!61 &1007484920
 BoxCollider2D:
   m_ObjectHideFlags: 0
