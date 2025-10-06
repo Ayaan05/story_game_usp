@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Collider2D))]
 public class BoxPourSpawn : MonoBehaviour
@@ -16,6 +17,14 @@ public class BoxPourSpawn : MonoBehaviour
     [Header("One-shot")]
     public bool oneShot = true;
     public bool disableBoxAfterPour = false;
+
+    // Added fade-in prefabs and offsets
+    [Header("Fade-in")]
+    [Tooltip("The prefabs to fade in before the final foodPrefab.")]
+    public GameObject[] fadePrefabs;
+    public float fadeDuration = 0.5f;
+    [Tooltip("Offsets for each fade prefab. Should match the size of fadePrefabs.")]
+    public Vector3[] fadeOffsets;
 
     private bool poured;
     private BoxDragTilt2D tiltSource;
@@ -48,10 +57,8 @@ public class BoxPourSpawn : MonoBehaviour
     {
         if (poured) return;
         poured = true;
-
-        var spawnPos = (foodAnchor != null ? foodAnchor.position : transform.position) + spawnOffset;
-        var go = Instantiate(foodPrefab, spawnPos, Quaternion.identity);
-        if (foodAnchor != null) go.transform.SetParent(foodAnchor, worldPositionStays: true);
+        
+        StartCoroutine(PourWithFade());
 
         if (disableBoxAfterPour)
         {
@@ -60,12 +67,72 @@ public class BoxPourSpawn : MonoBehaviour
             var rb = GetComponent<Rigidbody2D>();
             if (rb)
             {
-                rb.linearVelocity = Vector2.zero;            // modern API
+                rb.linearVelocity = Vector2.zero;
                 rb.angularVelocity = 0f;
-                rb.bodyType = RigidbodyType2D.Kinematic;     // modern API
+                rb.bodyType = RigidbodyType2D.Kinematic;
             }
 
             var drag = GetComponent<BoxDragTilt2D>(); if (drag) drag.enabled = false;
+        }
+    }
+
+    private IEnumerator PourWithFade()
+    {
+        var baseSpawnPos = (foodAnchor != null ? foodAnchor.position : transform.position) + spawnOffset;
+        
+        if (fadePrefabs != null && fadePrefabs.Length > 0)
+        {
+            // Step 1: Fade in all fade prefabs
+            for (int i = 0; i < fadePrefabs.Length; i++)
+            {
+                Vector3 currentOffset = (fadeOffsets != null && i < fadeOffsets.Length) ? fadeOffsets[i] : Vector3.zero;
+                Vector3 spawnPos = baseSpawnPos + currentOffset;
+
+                var fadeGo = Instantiate(fadePrefabs[i], spawnPos, Quaternion.identity);
+                if (foodAnchor != null) fadeGo.transform.SetParent(foodAnchor, worldPositionStays: true);
+
+                SpriteRenderer spriteRenderer = fadeGo.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    // Fade in effect
+                    float timer = 0f;
+                    Color startColor = spriteRenderer.color;
+                    startColor.a = 0f;
+                    Color targetColor = startColor;
+                    targetColor.a = 1f;
+
+                    while (timer < fadeDuration)
+                    {
+                        timer += Time.deltaTime;
+                        spriteRenderer.color = Color.Lerp(startColor, targetColor, timer / fadeDuration);
+                        yield return null;
+                    }
+                    spriteRenderer.color = targetColor;
+                }
+            }
+        }
+        
+        // Step 2: Fade in the final foodPrefab
+        var finalGo = Instantiate(foodPrefab, baseSpawnPos, Quaternion.identity);
+        if (foodAnchor != null) finalGo.transform.SetParent(foodAnchor, worldPositionStays: true);
+
+        SpriteRenderer finalSpriteRenderer = finalGo.GetComponent<SpriteRenderer>();
+        if (finalSpriteRenderer != null)
+        {
+            // Fade in effect for the final prefab
+            float timer = 0f;
+            Color startColor = finalSpriteRenderer.color;
+            startColor.a = 0f;
+            Color targetColor = startColor;
+            targetColor.a = 1f;
+
+            while (timer < fadeDuration)
+            {
+                timer += Time.deltaTime;
+                finalSpriteRenderer.color = Color.Lerp(startColor, targetColor, timer / fadeDuration);
+                yield return null;
+            }
+            finalSpriteRenderer.color = targetColor;
         }
     }
 }
