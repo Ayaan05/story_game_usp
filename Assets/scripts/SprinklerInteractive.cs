@@ -1,218 +1,218 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;   // New Input System
 
 [RequireComponent(typeof(Collider2D))]
 public class SprinklerInteractive : MonoBehaviour
 {
-    [Header("Dragging")]
-    [SerializeField] float moveLerp = 18f;
+    [Header("Move (Left-drag anywhere)")]
+    [SerializeField] float rotateSpeed = 8f;
+    [SerializeField] float minAngle = -0.34f;   // your “up” pose (Z)
+    [SerializeField] float maxAngle = 26.93f;   // your “down” pose (Z)
 
-    [Header("Clamp")]
-    [SerializeField] bool clampToCamera = true;
-    [SerializeField] float screenPadding = 0.2f;
+    [Header("Movement bounds")]
+    [SerializeField] float minX = -9f;
+    [SerializeField] float maxX =  9f;
+    [SerializeField] float minY = -2f;          // NEW: vertical limits
+    [SerializeField] float maxY =  2f;
 
-    [Header("Tilt")]
-    [SerializeField] float restAngleZ = 0f;
-    [SerializeField] float maxTilt = 25f;
-    [SerializeField] float tiltPerUnitSpeed = 10f;
-    [SerializeField] float tiltLerp = 14f;
-    [SerializeField] float returnLerp = 6f;
+    [Header("Art Alignment")]
+    [Tooltip("Spout direction relative to the object's +X. Right=0, Up=90, Left=180, Down=-90.")]
+    [SerializeField] float outAngleDeg = 180f;
 
-    [Header("Spray")]
-    [SerializeField] Transform nozzle;              // spout tip; +X should face out
-    [SerializeField] GameObject dropletsPrefab;     // particle prefab OR RB2D drop prefab
-    [SerializeField] float spraySpeedThreshold = 0.25f;
-    [SerializeField] float dropsPerSecond = 20f;    // used for RB2D drop prefab
-    [SerializeField] float dropletSpeed = 6f;       // RB2D initial speed
-    [SerializeField] float dropLifetime = 2.5f;     // auto destroy fallback
-    [SerializeField] float spread = 12f;            // RB2D angle jitter (deg)
-    [Tooltip("Scene object at the grass height. Assign your Grass Line here.")]
-    [SerializeField] Transform grassKillLine;       // we pass this to WaterDrop
+    [Header("Drip Gate (must face DOWN)")]
+    [Tooltip("How downward the spout must be before dripping (0..1). Lower triggers sooner.")]
+    [SerializeField, Range(0f, 1f)] float minDownY = 0.6f;
 
-    [Header("Safety")]
-    [SerializeField] float safeZ = 0f;
+    [Header("Water Drip (slow, instant first drop)")]
+    [SerializeField] Transform nozzlePos;     // at mouth of spout
+    [SerializeField] GameObject dropPrefab;
+    [SerializeField] float dripInterval = 0.32f;
+    [SerializeField] float launchSpeed = 0.6f;
+    [SerializeField] float dropGravity = 0.7f;
+    [SerializeField] float dropDrag = 0.7f;
+    [SerializeField] bool instantFirstDrop = true;
 
-    // Optional fixed numeric bounds if clampToCamera=false
-    [SerializeField] Vector2 clampMin = new Vector2(-9f, -2f);
-    [SerializeField] Vector2 clampMax = new Vector2( 9f,  2f);
+    [Header("Drop Audio")]
+    [SerializeField] AudioSource dropSfxSource;
+    [SerializeField] AudioClip dropClip;
+    [Range(0f, 1f)]
+    [SerializeField] float dropSfxVolume = 1f;
 
-    bool dragging;
-    Vector3 grabOffset;
-    Vector3 targetPos, lastPos, vel;
-    float dropTimer;
-    ParticleSystem ps;
-    SpriteRenderer sr;
-    Collider2D col;
+    [Header("Stop At Grass")]
+    [SerializeField] bool useGroundStop = true;
+    [SerializeField] Transform groundMarker;  // empty placed on grass Y
 
-    void OnEnable()
+    bool selected;
+    Camera cam;
+    Collider2D myCol;
+    int myLayerMask;
+    Coroutine dripCo;
+
+    void Awake()
     {
-        sr  = GetComponent<SpriteRenderer>();
-        col = GetComponent<Collider2D>();
-
-        var p = transform.position; p.z = safeZ; transform.position = p;
-        targetPos = ClampToBounds(transform.position);
-        lastPos = transform.position;
-
-        // If dropletsPrefab is a ParticleSystem, instantiate once under the nozzle
-        if (dropletsPrefab && nozzle)
-        {
-            var maybePS = dropletsPrefab.GetComponent<ParticleSystem>();
-            if (maybePS)
-            {
-                var go = Instantiate(dropletsPrefab, nozzle.position, nozzle.rotation, nozzle);
-                ps = go.GetComponent<ParticleSystem>();
-                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
-        }
+        cam = Camera.main;
+        myCol = GetComponent<Collider2D>();
+        myLayerMask = 1 << gameObject.layer;
+        if (!cam) Debug.LogWarning("SprinklerInteractive: Tag your camera 'MainCamera'.");
     }
 
     void Update()
     {
-        HandlePointerNewInput();
+        if (cam == null || Mouse.current == null) return;
 
-        // Move and clamp
-        Vector3 pos = transform.position;
-        pos = Vector3.Lerp(pos, targetPos, 1f - Mathf.Exp(-moveLerp * Time.deltaTime));
-        transform.position = ClampToBounds(pos);
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorld.z = 0f;
 
-        // Velocity estimate
-        Vector3 newVel = (transform.position - lastPos) / Mathf.Max(Time.deltaTime, 1e-5f);
-        vel = Vector3.Lerp(vel, newVel, 0.5f);
-        lastPos = transform.position;
-
-        // Tilt
-        float speed = new Vector2(vel.x, vel.y).magnitude;
-        float desiredDelta = Mathf.Clamp(-vel.x * tiltPerUnitSpeed, -maxTilt, maxTilt);
-        float desiredAngle = (dragging && speed > 0.01f) ? restAngleZ + desiredDelta : restAngleZ;
-        float lerp = (dragging && speed > 0.01f) ? tiltLerp : returnLerp;
-        float z = Mathf.LerpAngle(transform.eulerAngles.z, desiredAngle, 1f - Mathf.Exp(-lerp * Time.deltaTime));
-        transform.rotation = Quaternion.Euler(0, 0, z);
-
-        // Spray
-        bool shouldSpray = speed >= spraySpeedThreshold && nozzle && dropletsPrefab;
-        HandleSpray(shouldSpray);
-    }
-
-    // ---------- Input (New Input System) ----------
-    void HandlePointerNewInput()
-    {
-        var cam = Camera.main; if (!cam) return;
-
-        Vector2 screenPos = Vector2.zero;
-        bool down = false, held = false, up = false;
-
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        // PRESS: pick & decide mode based on proximity to nozzle
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            var t = Touchscreen.current.primaryTouch;
-            screenPos = t.position.ReadValue();
-            down = t.press.wasPressedThisFrame;
-            held = t.press.isPressed;
-            up   = t.press.wasReleasedThisFrame;
-        }
-        else if (Mouse.current != null)
-        {
-            screenPos = Mouse.current.position.ReadValue();
-            down = Mouse.current.leftButton.wasPressedThisFrame;
-            held = Mouse.current.leftButton.isPressed;
-            up   = Mouse.current.leftButton.wasReleasedThisFrame;
-        }
-        else if (Pointer.current != null)
-        {
-            screenPos = Pointer.current.position.ReadValue();
-            down = Pointer.current.press.wasPressedThisFrame;
-            held = Pointer.current.press.isPressed;
-            up   = Pointer.current.press.wasReleasedThisFrame;
-        }
-
-        float zDist = Mathf.Abs(cam.transform.position.z - transform.position.z);
-        Vector3 pw = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, zDist));
-        pw.z = safeZ;
-
-        if (down)
-        {
-            var hit = Physics2D.Raycast(pw, Vector2.zero, 0f);
-            if (hit.collider && hit.collider == col)
+            bool hitSelf = Physics2D.OverlapPointAll(mouseWorld, myLayerMask).Any(h => h == myCol);
+            selected = hitSelf;
+            if (selected)
             {
-                dragging = true;
-                grabOffset = transform.position - pw;
-                targetPos = ClampToBounds(transform.position);
+                // pointer stays captured so rotation can follow drag immediately
             }
         }
-        if (up) dragging = false;
 
-        if (dragging && held)
+        // RELEASE
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            targetPos = ClampToBounds(pw + grabOffset);
+            selected = false;
+        }
+
+        // DRAG
+        if (selected && Mouse.current.leftButton.isPressed)
+        {
+            // Move in BOTH X and Y, clamped to bounds
+            float newX = Mathf.Clamp(mouseWorld.x, minX, maxX);
+            float newY = Mathf.Clamp(mouseWorld.y, minY, maxY);
+            Vector3 newPos = new Vector3(newX, newY, transform.position.z);
+
+            Vector2 dragDelta = newPos - transform.position;
+
+            transform.position = newPos;
+
+            // Rotate based on drag direction when significant movement occurs
+            if (dragDelta.sqrMagnitude > 0.0001f)
+            {
+                Vector2 dir = dragDelta.normalized;
+                float targetZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+                float z = Mathf.LerpAngle(transform.eulerAngles.z, targetZ, rotateSpeed * Time.deltaTime);
+                z = ClampAngle(z, minAngle, maxAngle);
+                transform.rotation = Quaternion.Euler(0f, 0f, z);
+            }
+            else if ((mouseWorld - transform.position).sqrMagnitude > 0.0001f)
+            {
+                Vector2 dir = (mouseWorld - transform.position).normalized;
+                float targetZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                float z = Mathf.LerpAngle(transform.eulerAngles.z, targetZ, rotateSpeed * Time.deltaTime);
+                z = ClampAngle(z, minAngle, maxAngle);
+                transform.rotation = Quaternion.Euler(0f, 0f, z);
+            }
+        }
+
+        // DRIP only when the spout faces strongly DOWN
+        Vector2 outDir = GetOutDirection();
+        bool pointingDown = outDir.y <= -minDownY;
+        if (pointingDown)
+        {
+            if (dripCo == null)
+            {
+                if (instantFirstDrop) SpawnDrop();
+                dripCo = StartCoroutine(DripLoop());
+            }
+        }
+        else if (dripCo != null)
+        {
+            StopCoroutine(dripCo);
+            dripCo = null;
         }
     }
 
-    // ---------- Clamp (camera and sprite aware) ----------
-    Vector3 ClampToBounds(Vector3 p)
+    IEnumerator DripLoop()
     {
-        p.z = safeZ;
-
-        float minX, maxX, minY, maxY;
-        if (clampToCamera && Camera.main)
-        {
-            var cam = Camera.main;
-            float vert = cam.orthographicSize;
-            float horz = vert * cam.aspect;
-            Vector3 c = cam.transform.position;
-
-            Vector2 half = Vector2.zero;
-            if (sr) { var e = sr.bounds.extents; half = new Vector2(e.x, e.y); }
-
-            minX = c.x - horz + screenPadding + half.x;
-            maxX = c.x + horz - screenPadding - half.x;
-            minY = c.y - vert + screenPadding + half.y;
-            maxY = c.y + vert - screenPadding - half.y;
-        }
-        else
-        {
-            minX = clampMin.x; maxX = clampMax.x;
-            minY = clampMin.y; maxY = clampMax.y;
-        }
-
-        p.x = Mathf.Clamp(p.x, minX, maxX);
-        p.y = Mathf.Clamp(p.y, minY, maxY);
-        return p;
+        var wait = new WaitForSeconds(dripInterval);
+        while (true) { SpawnDrop(); yield return wait; }
     }
 
-    // ---------- Spray ----------
-    void HandleSpray(bool on)
+    void SpawnDrop()
     {
-        // ParticleSystem path
-        if (ps)
+        if (!dropPrefab || !nozzlePos) return;
+
+        GameObject drop = Instantiate(dropPrefab, nozzlePos.position, Quaternion.identity);
+        if (drop.TryGetComponent<Rigidbody2D>(out var rb))
         {
-            if (on && !ps.isPlaying) ps.Play();
-            else if (!on && ps.isPlaying) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-            return;
+            Vector2 dir = (GetOutDirection() + Vector2.down * 0.12f).normalized;
+            rb.linearVelocity = Vector2.zero;
+            rb.gravityScale = dropGravity;
+            rb.linearDamping = dropDrag;
+            rb.AddForce(dir * launchSpeed, ForceMode2D.Impulse);
         }
 
-        // Rigidbody2D drop spawner path
-        if (!on) { dropTimer = 0f; return; }
+        PlayDropSfx();
 
-        dropTimer += Time.deltaTime * dropsPerSecond;
-        while (dropTimer >= 1f)
+        if (useGroundStop && groundMarker && drop.TryGetComponent<WaterDrop>(out var wd))
+            wd.Init(groundMarker.position.y);
+    }
+
+    // ---------- helpers ----------
+    Vector2 GetOutDirection()
+    {
+        Vector2 baseRight = transform.right; // object's +X in world
+        Quaternion offset = Quaternion.Euler(0, 0, outAngleDeg);
+        return ((Vector2)(offset * baseRight)).normalized;
+    }
+
+    static float ClampAngle(float z, float min, float max)
+    {
+        z = Mathf.Repeat(z + 180f, 360f) - 180f;
+        return Mathf.Clamp(z, min, max);
+    }
+
+    void PlayDropSfx()
+    {
+        if (dropClip == null) return;
+
+        if (dropSfxSource == null)
         {
-            dropTimer -= 1f;
+            var sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+            foreach (var s in sources)
+            {
+                if (!s.loop)
+                {
+                    dropSfxSource = s;
+                    break;
+                }
+            }
+            if (dropSfxSource == null && sources.Length > 0)
+            {
+                dropSfxSource = sources[0];
+            }
+        }
 
-            Vector2 dir = nozzle ? (Vector2)nozzle.right : Vector2.right;
-            float jitter = Random.Range(-spread, spread);
-            dir = Quaternion.Euler(0, 0, jitter) * dir;
-
-            var drop = Instantiate(dropletsPrefab, nozzle.position, Quaternion.identity);
-
-            // pass the Grass Line into the drop so it can self-kill by Y
-            var wd = drop.GetComponent<WaterDrop>();
-            if (wd != null && grassKillLine != null)
-                wd.SetKillLine(grassKillLine, 0f, true);
-
-            var rb = drop.GetComponent<Rigidbody2D>();
-            if (rb != null)
-                rb.linearVelocity = dir.normalized * dropletSpeed + (Vector2)vel * 0.25f;
-
-            if (dropLifetime > 0f) Destroy(drop, dropLifetime);
+        if (dropSfxSource != null)
+        {
+            dropSfxSource.PlayOneShot(dropClip, dropSfxVolume);
         }
     }
+
+#if UNITY_EDITOR
+    void OnDrawGizmosSelected()
+    {
+        if (nozzlePos)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(nozzlePos.position, nozzlePos.position + (Vector3)GetOutDirection() * 0.6f);
+        }
+        if (useGroundStop && groundMarker)
+        {
+            Gizmos.color = new Color(0, 1, 0, 0.35f);
+            Gizmos.DrawLine(new Vector3(-1000, groundMarker.position.y, 0),
+                            new Vector3( 1000, groundMarker.position.y, 0));
+        }
+    }
+#endif
 }
