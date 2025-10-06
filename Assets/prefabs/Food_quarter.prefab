@@ -267,6 +267,8 @@ MonoBehaviour:
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+  fadeOutDuration: 0.1
+  fadeInDuration: 0.1
 --- !u!114 &1599904402804531517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,8 +308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeAlphaOnly
-  duration: 1
-  startAlpha: 0
+  duration: 0
+  startAlpha: 1
   endAlpha: 1
   ease:
     serializedVersion: 2
@@ -333,4 +335,4 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  startHeight: 0.2
+  startHeight: 0

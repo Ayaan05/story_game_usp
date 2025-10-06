@@ -28,6 +28,7 @@ public class BoxPourSpawn : MonoBehaviour
 
     private bool poured;
     private BoxDragTilt2D tiltSource;
+    private GameObject[] spawnedPrefabs;
 
     void Awake()
     {
@@ -41,12 +42,12 @@ public class BoxPourSpawn : MonoBehaviour
 
         // Position over bowl
         Vector2 center = foodAnchor.position;
+        
         // Get the collider's half-size
         BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
         Vector2 boxHalfSize = boxCollider.size / 2.0f;
         
         // Calculate the local position of the top-left corner
-        // The collider's offset is also factored in here
         Vector2 localTopLeft = boxCollider.offset + new Vector2(-boxHalfSize.x, boxHalfSize.y);
         
         // Convert the local position to a world-space position
@@ -90,9 +91,12 @@ public class BoxPourSpawn : MonoBehaviour
     {
         var baseSpawnPos = (foodAnchor != null ? foodAnchor.position : transform.position) + spawnOffset;
         
+        // Initialize the array to hold the spawned prefabs
+        spawnedPrefabs = new GameObject[fadePrefabs.Length];
+        
+        // Step 1: Fade in all fade prefabs
         if (fadePrefabs != null && fadePrefabs.Length > 0)
         {
-            // Step 1: Fade in all fade prefabs
             for (int i = 0; i < fadePrefabs.Length; i++)
             {
                 Vector3 currentOffset = (fadeOffsets != null && i < fadeOffsets.Length) ? fadeOffsets[i] : Vector3.zero;
@@ -100,6 +104,8 @@ public class BoxPourSpawn : MonoBehaviour
 
                 var fadeGo = Instantiate(fadePrefabs[i], spawnPos, Quaternion.identity);
                 if (foodAnchor != null) fadeGo.transform.SetParent(foodAnchor, worldPositionStays: true);
+                
+                spawnedPrefabs[i] = fadeGo;
 
                 SpriteRenderer spriteRenderer = fadeGo.GetComponent<SpriteRenderer>();
                 if (spriteRenderer != null)
@@ -143,6 +149,15 @@ public class BoxPourSpawn : MonoBehaviour
                 yield return null;
             }
             finalSpriteRenderer.color = targetColor;
+        }
+
+        // Step 3: Cleanup - Destroy all previously spawned fade prefabs
+        foreach (var go in spawnedPrefabs)
+        {
+            if (go != null)
+            {
+                Destroy(go);
+            }
         }
     }
 }

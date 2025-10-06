@@ -265,6 +265,8 @@ MonoBehaviour:
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+  fadeOutDuration: 0.1
+  fadeInDuration: 0.1
 --- !u!114 &-2253719391118142075
 MonoBehaviour:
   m_ObjectHideFlags: 0
