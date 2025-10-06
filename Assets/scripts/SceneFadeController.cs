@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(CanvasGroup))]
 public class SceneFadeController : MonoBehaviour
 {
+    public static SceneFadeController Instance { get; private set; }
+
     [Tooltip("Duration of fade in seconds.")]
     public float fadeDuration = 0.6f;
     public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -13,6 +15,13 @@ public class SceneFadeController : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
@@ -40,6 +49,12 @@ public class SceneFadeController : MonoBehaviour
 
     IEnumerator Fade(float from, float to)
     {
+        if (canvasGroup == null)
+            yield break;
+
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.interactable = true;
+
         float elapsed = 0f;
         float duration = Mathf.Max(0.05f, fadeDuration);
         while (elapsed < duration)
@@ -51,10 +66,18 @@ public class SceneFadeController : MonoBehaviour
             yield return null;
         }
         canvasGroup.alpha = to;
+
+        if (Mathf.Approximately(to, 0f))
+        {
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
+        }
     }
 
     void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
         SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 }
