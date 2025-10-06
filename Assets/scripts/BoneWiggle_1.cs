@@ -10,15 +10,10 @@ public class BoneSpringBounce : MonoBehaviour, IPointerClickHandler
     [SerializeField] KickMode kickMode = KickMode.Height;
 
     [Header("Kick (Velocity mode)")]
-    [SerializeField, Range(0.01f, 50f)] float kickVelocity = 6f;          // ↓ smaller min
+    [SerializeField, Range(0.1f, 50f)] float kickVelocity = 6f;
 
     [Header("Kick (Height mode)")]
-    [SerializeField, Range(0.001f, 1f)] float kickHeightPercent = 0.30f;  // ↓ smaller min
-
-    [Header("Kick Ease (slows the initial pop)")]
-    [Tooltip("Time to ease into the initial kick (seconds). 0 = instant.")]
-    [SerializeField, Range(0f, 1f)] float kickEaseTime = 0.25f;
-    [SerializeField] AnimationCurve kickEase = AnimationCurve.EaseInOut(0,0,1,1);
+    [SerializeField, Range(0.01f, 1f)] float kickHeightPercent = 0.30f;
 
     [Header("Spring Back")]
     [SerializeField, Range(0.5f, 8f)]  float springFrequency = 2.5f;
@@ -26,8 +21,8 @@ public class BoneSpringBounce : MonoBehaviour, IPointerClickHandler
     [SerializeField, Range(0.2f, 3f)]  float maxSettleTime  = 1.5f;
 
     [Header("Timing")]
-    [Tooltip("Values >1 slow the entire bounce; <1 speeds it up.")]
-    [SerializeField, Range(0.25f, 4f)] float timeStretch = 1.5f;
+    [Tooltip("Values >1 slow the motion; <1 speed it up.")]
+    [SerializeField, Range(0.25f, 4f)] float timeStretch = 2f;
 
     [Header("Settle Thresholds")]
     [SerializeField, Range(0.0005f, 0.05f)] float posEps   = 0.002f;
@@ -57,58 +52,19 @@ public class BoneSpringBounce : MonoBehaviour, IPointerClickHandler
     {
         float y = 0f, v = 0f;
 
-        // --- Gentle kick-in phase (slows the initial pop) ---
-        float wH = 1f;
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr) wH = Mathf.Max(0.0001f, sr.bounds.size.y);
-        float localH = wH / Mathf.Max(0.0001f, transform.lossyScale.y);
-
-        float dt; float tEase = 0f;
-        if (kickMode == KickMode.Height)
+        if (kickMode == KickMode.Velocity)
         {
-            float targetY = Mathf.Clamp01(kickHeightPercent) * localH;
-
-            if (kickEaseTime > 0f)
-            {
-                while (tEase < kickEaseTime)
-                {
-                    dt = Time.unscaledDeltaTime / Mathf.Max(0.01f, timeStretch);
-                    tEase += dt;
-                    float u = Mathf.Clamp01(tEase / kickEaseTime);
-                    y = Mathf.Lerp(0f, targetY, kickEase.Evaluate(u));
-                    var p = baseLocalPos; p.y += y; transform.localPosition = p;
-                    yield return null;
-                }
-            }
-            else
-            {
-                y = targetY;
-            }
-            v = 0f; // start spring from rest at displaced position
+            v = kickVelocity;
         }
-        else // Velocity mode
+        else
         {
-            float targetV = kickVelocity;
-            if (kickEaseTime > 0f)
-            {
-                while (tEase < kickEaseTime)
-                {
-                    dt = Time.unscaledDeltaTime / Mathf.Max(0.01f, timeStretch);
-                    tEase += dt;
-                    float u = Mathf.Clamp01(tEase / kickEaseTime);
-                    v = Mathf.Lerp(0f, targetV, kickEase.Evaluate(u));
-                    y += v * dt;
-                    var p = baseLocalPos; p.y += y; transform.localPosition = p;
-                    yield return null;
-                }
-            }
-            else
-            {
-                v = targetV;
-            }
+            float worldH = 1f;
+            var sr = GetComponent<SpriteRenderer>();
+            if (sr) worldH = Mathf.Max(0.0001f, sr.bounds.size.y);
+            float localH = worldH / Mathf.Max(0.0001f, transform.lossyScale.y);
+            y = kickHeightPercent * localH;
         }
 
-        // --- Spring simulation ---
         float w = 2f * Mathf.PI * Mathf.Max(0.01f, springFrequency);
         float k = w * w;
         float c = 2f * dampingRatio * w;
@@ -118,7 +74,8 @@ public class BoneSpringBounce : MonoBehaviour, IPointerClickHandler
 
         while (t < allow)
         {
-            dt = Time.unscaledDeltaTime / Mathf.Max(0.01f, timeStretch);
+            // ↓ slow time progression by timeStretch
+            float dt = Time.unscaledDeltaTime / Mathf.Max(0.01f, timeStretch);
             t += dt;
 
             float a = -k * y - c * v;
