@@ -41,8 +41,18 @@ public class BoxPourSpawn : MonoBehaviour
 
         // Position over bowl
         Vector2 center = foodAnchor.position;
-        Vector2 pos = transform.position;
-        Vector2 d = pos - center;
+        // Get the collider's half-size
+        BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+        Vector2 boxHalfSize = boxCollider.size / 2.0f;
+        
+        // Calculate the local position of the top-left corner
+        // The collider's offset is also factored in here
+        Vector2 localTopLeft = boxCollider.offset + new Vector2(-boxHalfSize.x, boxHalfSize.y);
+        
+        // Convert the local position to a world-space position
+        Vector2 worldTopLeftCorner = transform.TransformPoint(localTopLeft);
+
+        Vector2 d = worldTopLeftCorner - center;
         bool aboveBowl = Mathf.Abs(d.x) <= bowlAreaHalfExtents.x && Mathf.Abs(d.y) <= bowlAreaHalfExtents.y;
 
         // Left-only tilt magnitude: CurrentTiltDeg is <= 0 by design
