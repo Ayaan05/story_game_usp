@@ -72,7 +72,14 @@ public class GameManager : MonoBehaviour
 
         string targetScene = allDone ? END_SCENE : MAIN_SCENE;
         Debug.Log($"GameManager: mini game '{miniGame}' complete. Loading '{targetScene}'");
-        SceneManager.LoadScene(targetScene);
+        if (SceneFadeController.Instance != null)
+        {
+            SceneFadeController.Instance.FadeOutAndLoad(targetScene);
+        }
+        else
+        {
+            SceneManager.LoadScene(targetScene);
+        }
     }
 
     public bool IsMiniGameComplete(MiniGame miniGame) => completed.Contains(miniGame);

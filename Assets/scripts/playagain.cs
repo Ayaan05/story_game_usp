@@ -105,7 +105,10 @@ public class PlayAgainButton : MonoBehaviour
         {
             case ReloadMode.CurrentScene:
                 var scene = SceneManager.GetActiveScene();
-                SceneManager.LoadScene(scene.buildIndex);
+                if (SceneFadeController.Instance != null)
+                    SceneFadeController.Instance.FadeOutAndLoad(scene.name);
+                else
+                    SceneManager.LoadScene(scene.buildIndex);
                 break;
             case ReloadMode.SceneName:
                 if (string.IsNullOrEmpty(sceneName))
@@ -116,7 +119,10 @@ public class PlayAgainButton : MonoBehaviour
                 {
                     if (!Application.CanStreamedLevelBeLoaded(sceneName))
                         Debug.LogWarning("PlayAgainButton: scene '" + sceneName + "' not found in Build Settings.");
-                    SceneManager.LoadScene(sceneName);
+                    if (SceneFadeController.Instance != null)
+                        SceneFadeController.Instance.FadeOutAndLoad(sceneName);
+                    else
+                        SceneManager.LoadScene(sceneName);
                 }
                 break;
             case ReloadMode.BuildIndex:
@@ -126,7 +132,23 @@ public class PlayAgainButton : MonoBehaviour
                 }
                 else
                 {
-                    SceneManager.LoadScene(sceneBuildIndex);
+                    if (SceneFadeController.Instance != null)
+                    {
+                        string name = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            string sceneNameOnly = System.IO.Path.GetFileNameWithoutExtension(name);
+                            SceneFadeController.Instance.FadeOutAndLoad(sceneNameOnly);
+                        }
+                        else
+                        {
+                            SceneManager.LoadScene(sceneBuildIndex);
+                        }
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(sceneBuildIndex);
+                    }
                 }
                 break;
         }
