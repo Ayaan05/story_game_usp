@@ -447,10 +447,19 @@ MonoBehaviour:
   foodAnchor: {fileID: 685252336}
   foodPrefab: {fileID: 9059753268149791975, guid: a5a548c83e90f4fc5bb1271d68f7661e, type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
-  pourTiltThresholdDeg: 10
+  pourTiltThresholdDeg: 100
   bowlAreaHalfExtents: {x: 0.8, y: 0.4}
   oneShot: 1
   disableBoxAfterPour: 0
+  fadePrefabs:
+  - {fileID: 9080709091962856353, guid: 60968db162d3f4b2fbe17a3674eebd3b, type: 3}
+  - {fileID: 9080709091962856353, guid: edc726e3f74544960b922a169fe16a82, type: 3}
+  - {fileID: 9080709091962856353, guid: e4afdaa057d934e92aec55b3ebcc8cb8, type: 3}
+  fadeDuration: 0.9
+  fadeOffsets:
+  - {x: 0.1, y: -2.2, z: 0}
+  - {x: 0, y: -2, z: 0}
+  - {x: 0, y: -1.4, z: 0}
 --- !u!114 &260257179
 MonoBehaviour:
   m_ObjectHideFlags: 0
