@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0540c9c58adc14c42a742b45956d1ab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SparklesShimmer
-  alphaMin: 0.2
+  alphaMin: 0.05
   alphaMax: 1
   shimmerHz: 0.95
   scalePulse: 0.05
