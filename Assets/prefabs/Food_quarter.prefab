@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2455951141405297309}
   - component: {fileID: 6160390649792500711}
   - component: {fileID: 1599904402804531517}
-  - component: {fileID: -6200842359857651882}
+  - component: {fileID: 5913669850428130971}
   m_Layer: 0
-  m_Name: Bone3
+  m_Name: Food_quarter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9080709091962856353}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.16964717, w: 0.9855049}
-  m_LocalPosition: {x: 9.241545, y: 99.5458, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 9.24, y: 99.55, z: 0}
   m_LocalScale: {x: 0.2092702, y: 0.1720977, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 19.535}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &251056501879460715
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -82,8 +82,8 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
-  m_Sprite: {fileID: 1176858566377162947, guid: 606b577cd29364668944d869f7d2556f, type: 3}
+  m_SortingOrder: 3
+  m_Sprite: {fileID: -859516521095090244, guid: 782d3fca57497445395b2fbe89463e1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -132,7 +132,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 10.302114, y: 10.19}
+    oldSize: {x: 28.755898, y: 15.3}
     newSize: {x: 28.755898, y: 30.77}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -255,11 +255,91 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClickDestroySpawn
   items:
-  - name: Quarter
-    prefab: {fileID: 9080709091962856353, guid: 60968db162d3f4b2fbe17a3674eebd3b, type: 3}
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 7b7afbc58c60841379000ad54298b141, type: 3}
     mode: 0
     worldPosition: {x: 0, y: 0, z: 0}
-    offset: {x: 0, y: -0.2, z: 0}
+    offset: {x: -2, y: -0.2, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 9d290d764b29a4f2ea118313ae2d73fc, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: -1.5, y: -1.5, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: e918750966d0444c28568538ffbffa58, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: -1, y: -0.7, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 627aab61c5fc246fab0a018b684007ca, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: -0.5, y: -0.1, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 305f75e027065404baa877a63810fac7, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: 0, y: -1.2, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: d98617216f58c41cf9aa71cf9028cc4c, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: 0.5, y: -0.2, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 64c7f596d6a1b45f0b9bdd8887e1442d, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: 1, y: -0.9, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: 6c78e42e97cfb463a8395d165d3b15a6, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: 1.5, y: -0.1, z: 0}
+    parent: {fileID: 0}
+    copyRotation: 0
+    copyScale: 0
+    zRotation: 0
+    enabled: 1
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: e918750966d0444c28568538ffbffa58, type: 3}
+    mode: 0
+    worldPosition: {x: 0, y: 0, z: 0}
+    offset: {x: 2, y: -0.5, z: 0}
     parent: {fileID: 0}
     copyRotation: 0
     copyScale: 0
@@ -281,43 +361,15 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
   volume: 1
   maxSeconds: 1.5
---- !u!114 &-6200842359857651882
-MonoBehaviour:
+--- !u!225 &5913669850428130971
+CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9080709091962856353}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeAlphaOnly
-  duration: 1
-  startAlpha: 1
-  endAlpha: 1
-  ease:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  startHeight: 2
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

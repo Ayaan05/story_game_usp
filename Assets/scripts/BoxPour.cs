@@ -18,11 +18,12 @@ public class BoxPourSpawn : MonoBehaviour
     public bool oneShot = true;
     public bool disableBoxAfterPour = false;
 
-    // Added fade-in prefabs and offsets
+    // New arrays to store individual fade properties
     [Header("Fade-in")]
     [Tooltip("The prefabs to fade in before the final foodPrefab.")]
     public GameObject[] fadePrefabs;
-    public float fadeDuration = 0.5f;
+    [Tooltip("Duration for each fade prefab. Should match the size of fadePrefabs.")]
+    public float[] fadeDurations;
     [Tooltip("Offsets for each fade prefab. Should match the size of fadePrefabs.")]
     public Vector3[] fadeOffsets;
 
@@ -43,20 +44,16 @@ public class BoxPourSpawn : MonoBehaviour
         // Position over bowl
         Vector2 center = foodAnchor.position;
         
-        // Get the collider's half-size
         BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
         Vector2 boxHalfSize = boxCollider.size / 2.0f;
         
-        // Calculate the local position of the top-left corner
         Vector2 localTopLeft = boxCollider.offset + new Vector2(-boxHalfSize.x, boxHalfSize.y);
         
-        // Convert the local position to a world-space position
         Vector2 worldTopLeftCorner = transform.TransformPoint(localTopLeft);
 
         Vector2 d = worldTopLeftCorner - center;
         bool aboveBowl = Mathf.Abs(d.x) <= bowlAreaHalfExtents.x && Mathf.Abs(d.y) <= bowlAreaHalfExtents.y;
 
-        // Left-only tilt magnitude: CurrentTiltDeg is <= 0 by design
         float leftTiltMagnitude = Mathf.Abs(tiltSource.CurrentTiltDeg);
         bool tiltedEnough = leftTiltMagnitude >= pourTiltThresholdDeg;
 
@@ -91,10 +88,8 @@ public class BoxPourSpawn : MonoBehaviour
     {
         var baseSpawnPos = (foodAnchor != null ? foodAnchor.position : transform.position) + spawnOffset;
         
-        // Initialize the array to hold the spawned prefabs
         spawnedPrefabs = new GameObject[fadePrefabs.Length];
         
-        // Step 1: Fade in all fade prefabs
         if (fadePrefabs != null && fadePrefabs.Length > 0)
         {
             for (int i = 0; i < fadePrefabs.Length; i++)
@@ -110,17 +105,19 @@ public class BoxPourSpawn : MonoBehaviour
                 SpriteRenderer spriteRenderer = fadeGo.GetComponent<SpriteRenderer>();
                 if (spriteRenderer != null)
                 {
-                    // Fade in effect
+                    // Use the specific duration for this prefab, or a default if not set.
+                    float currentFadeDuration = (fadeDurations != null && i < fadeDurations.Length) ? fadeDurations[i] : 0.5f;
+
                     float timer = 0f;
                     Color startColor = spriteRenderer.color;
                     startColor.a = 0f;
                     Color targetColor = startColor;
                     targetColor.a = 1f;
 
-                    while (timer < fadeDuration)
+                    while (timer < currentFadeDuration)
                     {
                         timer += Time.deltaTime;
-                        spriteRenderer.color = Color.Lerp(startColor, targetColor, timer / fadeDuration);
+                        spriteRenderer.color = Color.Lerp(startColor, targetColor, timer / currentFadeDuration);
                         yield return null;
                     }
                     spriteRenderer.color = targetColor;
@@ -128,30 +125,27 @@ public class BoxPourSpawn : MonoBehaviour
             }
         }
         
-        // Step 2: Fade in the final foodPrefab
         var finalGo = Instantiate(foodPrefab, baseSpawnPos, Quaternion.identity);
         if (foodAnchor != null) finalGo.transform.SetParent(foodAnchor, worldPositionStays: true);
 
         SpriteRenderer finalSpriteRenderer = finalGo.GetComponent<SpriteRenderer>();
         if (finalSpriteRenderer != null)
         {
-            // Fade in effect for the final prefab
             float timer = 0f;
             Color startColor = finalSpriteRenderer.color;
             startColor.a = 0f;
             Color targetColor = startColor;
             targetColor.a = 1f;
 
-            while (timer < fadeDuration)
+            while (timer < 0.5f) // Using a hardcoded 0.5f for the final prefab's fade duration
             {
                 timer += Time.deltaTime;
-                finalSpriteRenderer.color = Color.Lerp(startColor, targetColor, timer / fadeDuration);
+                finalSpriteRenderer.color = Color.Lerp(startColor, targetColor, timer / 0.5f);
                 yield return null;
             }
             finalSpriteRenderer.color = targetColor;
         }
 
-        // Step 3: Cleanup - Destroy all previously spawned fade prefabs
         foreach (var go in spawnedPrefabs)
         {
             if (go != null)
