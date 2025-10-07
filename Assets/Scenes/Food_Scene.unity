@@ -453,20 +453,16 @@ MonoBehaviour:
   disableBoxAfterPour: 0
   fadePrefabs:
   - {fileID: 9080709091962856353, guid: ac706c153e3854f57a52c0d5a3049e53, type: 3}
-  - {fileID: 9080709091962856353, guid: ac706c153e3854f57a52c0d5a3049e53, type: 3}
-  - {fileID: 9080709091962856353, guid: ac706c153e3854f57a52c0d5a3049e53, type: 3}
   - {fileID: 9080709091962856353, guid: b289db1860c354cc5955ee8fa57be2cb, type: 3}
   - {fileID: 9080709091962856353, guid: d5970daf8132640089bc1444154a0d76, type: 3}
   - {fileID: 9080709091962856353, guid: 60968db162d3f4b2fbe17a3674eebd3b, type: 3}
   - {fileID: 9080709091962856353, guid: edc726e3f74544960b922a169fe16a82, type: 3}
   - {fileID: 9080709091962856353, guid: e4afdaa057d934e92aec55b3ebcc8cb8, type: 3}
-  fadeDuration: 0.7
+  fadeDuration: 0.9
   fadeOffsets:
-  - {x: 1.5, y: -2.2, z: 0}
-  - {x: 0, y: -2.2, z: 0}
-  - {x: -2, y: -2.2, z: 0}
-  - {x: -1, y: -2.2, z: 0}
-  - {x: 0.75, y: -2.2, z: 0}
+  - {x: 2, y: -2, z: 0}
+  - {x: 1, y: -2, z: 0}
+  - {x: 0, y: -2, z: 0}
   - {x: 0.1, y: -2.2, z: 0}
   - {x: 0, y: -2, z: 0}
   - {x: 0, y: -1.4, z: 0}
@@ -484,7 +480,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoxDragRotate2D
   followSpeed: 20
   maxSpeed: 10
-  tiltPerPixel: 0.3
+  tiltPerPixel: 0.25
   maxTiltDeg: 120
   tiltDamping: 20
   returnPosSpeed: 6
