@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -31,6 +32,8 @@ public class EndSceneController : MonoBehaviour
     [Header("Transitions")]
     [Tooltip("Seconds for window/doghouse swap fade.")]
     [Range(0.05f, 1.5f)] public float swapDuration = 0.4f;
+    [Tooltip("Seconds for bye characters fade.")]
+    [Range(0.05f, 2f)] public float firstTapFadeDuration = 0.6f;
 
     [Header("Debug")]
     public bool debugLogs = false;
@@ -39,6 +42,8 @@ public class EndSceneController : MonoBehaviour
     private bool sequenceComplete = false;
     private Sprite originalWindowSprite;
     private Sprite originalDoghouseSprite;
+    private readonly Dictionary<GameObject, Coroutine> firstTapFadeCoroutines = new Dictionary<GameObject, Coroutine>();
+    private readonly Dictionary<Object, float> originalAlphaLookup = new Dictionary<Object, float>();
 
     void Awake()
     {
@@ -47,7 +52,7 @@ public class EndSceneController : MonoBehaviour
         if (doghouseRenderer != null)
             originalDoghouseSprite = doghouseRenderer.sprite;
 
-        SetFirstTapObjectsActive(false);
+        SetFirstTapObjectsActive(false, true);
         ConfigureWindowReturn(false);
     }
 
@@ -55,7 +60,7 @@ public class EndSceneController : MonoBehaviour
     {
         tapStage = 0;
         sequenceComplete = false;
-        SetFirstTapObjectsActive(false);
+        SetFirstTapObjectsActive(false, true);
         if (windowRenderer != null)
         {
             windowRenderer.sprite = originalWindowSprite;
@@ -67,6 +72,16 @@ public class EndSceneController : MonoBehaviour
             doghouseRenderer.color = Color.white;
         }
         ConfigureWindowReturn(false);
+    }
+
+    void OnDisable()
+    {
+        foreach (var routine in firstTapFadeCoroutines.Values)
+        {
+            if (routine != null)
+                StopCoroutine(routine);
+        }
+        firstTapFadeCoroutines.Clear();
     }
 
     void Update()
@@ -118,7 +133,7 @@ public class EndSceneController : MonoBehaviour
         StartCoroutine(PerformSwapSequence());
     }
 
-    void SetFirstTapObjectsActive(bool state)
+    void SetFirstTapObjectsActive(bool state, bool instant = false)
     {
         if (firstTapObjects == null) return;
         for (int i = 0; i < firstTapObjects.Length; i++)
@@ -126,9 +141,37 @@ public class EndSceneController : MonoBehaviour
             var go = firstTapObjects[i];
             if (go != null)
             {
-                go.SetActive(state);
-                if (state)
-                    BoostVisualAlpha(go);
+                StopFirstTapFade(go);
+
+                if (instant || firstTapFadeDuration <= 0f)
+                {
+                    if (state)
+                    {
+                        go.SetActive(true);
+                        UpdateObjectAlpha(go, 1f);
+                        BoostVisualAlpha(go);
+                    }
+                    else
+                    {
+                        UpdateObjectAlpha(go, 0f);
+                        go.SetActive(false);
+                    }
+                    continue;
+                }
+
+                if (state && !go.activeSelf)
+                {
+                    UpdateObjectAlpha(go, 0f);
+                    go.SetActive(true);
+                }
+
+                if (!state)
+                {
+                    UpdateObjectAlpha(go, 1f);
+                }
+
+                var routine = StartCoroutine(FadeGameObject(go, state, firstTapFadeDuration));
+                firstTapFadeCoroutines[go] = routine;
             }
         }
     }
@@ -184,6 +227,37 @@ public class EndSceneController : MonoBehaviour
         ConfigureWindowReturn(true);
     }
 
+    IEnumerator FadeGameObject(GameObject go, bool fadeIn, float duration)
+    {
+        float start = fadeIn ? 0f : 1f;
+        float end = fadeIn ? 1f : 0f;
+        float elapsed = 0f;
+
+        UpdateObjectAlpha(go, start);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float normalized = Mathf.Lerp(start, end, t);
+            UpdateObjectAlpha(go, normalized);
+            yield return null;
+        }
+
+        UpdateObjectAlpha(go, end);
+
+        if (fadeIn)
+        {
+            BoostVisualAlpha(go);
+        }
+        else
+        {
+            go.SetActive(false);
+        }
+
+        firstTapFadeCoroutines.Remove(go);
+    }
+
     IEnumerator CrossFadeSprite(SpriteRenderer renderer, Sprite targetSprite, float duration)
     {
         if (renderer == null || targetSprite == null)
@@ -222,26 +296,69 @@ public class EndSceneController : MonoBehaviour
         Destroy(tempObj);
     }
 
+    void StopFirstTapFade(GameObject go)
+    {
+        if (!firstTapFadeCoroutines.TryGetValue(go, out var routine))
+            return;
+
+        if (routine != null)
+            StopCoroutine(routine);
+
+        firstTapFadeCoroutines.Remove(go);
+    }
+
+    void UpdateObjectAlpha(GameObject go, float normalizedAlpha)
+    {
+        normalizedAlpha = Mathf.Clamp01(normalizedAlpha);
+
+        var graphics = go.GetComponentsInChildren<Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            var graphic = graphics[i];
+            if (graphic == null) continue;
+            float target = GetOriginalAlpha(graphic, graphic.color.a);
+            var color = graphic.color;
+            color.a = target * normalizedAlpha;
+            graphic.color = color;
+        }
+
+        var sprites = go.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            var sprite = sprites[i];
+            if (sprite == null) continue;
+            float target = GetOriginalAlpha(sprite, sprite.color.a);
+            var color = sprite.color;
+            color.a = target * normalizedAlpha;
+            sprite.color = color;
+        }
+
+        var groups = go.GetComponentsInChildren<CanvasGroup>(true);
+        for (int i = 0; i < groups.Length; i++)
+        {
+            var group = groups[i];
+            if (group == null) continue;
+            float target = GetOriginalAlpha(group, group.alpha);
+            group.alpha = target * normalizedAlpha;
+        }
+    }
+
+    float GetOriginalAlpha(Object key, float fallback)
+    {
+        if (key == null)
+            return fallback;
+
+        if (originalAlphaLookup.TryGetValue(key, out var stored))
+            return stored;
+
+        originalAlphaLookup[key] = fallback;
+        return fallback;
+    }
+
     void BoostVisualAlpha(GameObject go)
     {
         if (go == null) return;
 
-        var graphic = go.GetComponent<Graphic>();
-        if (graphic != null)
-        {
-            graphic.color = new Color(1f, 1f, 1f, 1f);
-        }
-        else
-        {
-            var sr = go.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.color = new Color(1f, 1f, 1f, 1f);
-            }
-        }
-
-        var cg = go.GetComponent<CanvasGroup>();
-        if (cg != null && cg.alpha < 0.95f)
-            cg.alpha = 1f;
+        UpdateObjectAlpha(go, 1f);
     }
 }
