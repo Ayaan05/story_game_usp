@@ -1,9 +1,11 @@
 using UnityEngine;
-using UnityEngine.InputSystem;   // New Input System
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider2D))]
 public class SprinklerInteractive : MonoBehaviour
 {
+    public enum SprayMode { Forward, VerticalDown }
+
     [Header("Dragging")]
     [SerializeField] float moveLerp = 18f;
 
@@ -17,26 +19,29 @@ public class SprinklerInteractive : MonoBehaviour
     [SerializeField] float tiltPerUnitSpeed = 10f;
     [SerializeField] float tiltLerp = 14f;
     [SerializeField] float returnLerp = 6f;
+    [SerializeField] bool tiltAlwaysForward = true;
 
     [Header("Spray")]
-    [SerializeField] Transform nozzle;              // spout tip; +X should face out
-    [SerializeField] GameObject dropletsPrefab;     // ParticleSystem OR RB2D drop prefab
+    [SerializeField] Transform nozzle;
+    [SerializeField] GameObject dropletsPrefab;    // ParticleSystem or RB2D prefab
+    [SerializeField] SprayMode mode = SprayMode.VerticalDown; // << choose here
     [SerializeField] float spraySpeedThreshold = 0.25f;
-    [SerializeField] float dropsPerSecond = 20f;    // RB2D spawn rate
-    [SerializeField] float dropletSpeed = 6f;       // RB2D initial speed
-    [SerializeField] float dropLifetime = 2.5f;     // fallback auto-destroy
-    [SerializeField] float spread = 12f;            // RB2D angle jitter (deg)
-    [Tooltip("Scene object at the grass height. Assign your Grass Line here.")]
-    [SerializeField] Transform grassKillLine;       // passed to WaterDrop
+
+    // RB2D spawning
+    [SerializeField] float dropsPerSecond = 10f;    // slower stream
+    [SerializeField] float dropletSpeed   = 6f;     // initial speed
+    [SerializeField] float dropLifetime   = 2.5f;
+    [SerializeField] float spread         = 0f;     // 0 for vertical stream
+    [SerializeField] Transform grassKillLine;
 
     [Header("Droplet Appearance")]
-    [SerializeField] float dropletScale = 1.6f;     // RB2D prefab size multiplier
-    [SerializeField] float particleSizeMult = 1.6f; // Particle System Start Size multiplier
+    [SerializeField] float dropletScale = 1.8f;     // RB2D size multiplier
+    [SerializeField] float particleSizeMult = 1.8f; // ParticleSystem size multiplier
+    [SerializeField] float particleRate = 8f;       // ParticleSystem rate
 
     [Header("Safety")]
     [SerializeField] float safeZ = 0f;
 
-    // Optional fixed numeric bounds if clampToCamera=false
     [SerializeField] Vector2 clampMin = new Vector2(-9f, -2f);
     [SerializeField] Vector2 clampMax = new Vector2( 9f,  2f);
 
@@ -57,18 +62,33 @@ public class SprinklerInteractive : MonoBehaviour
         targetPos = ClampToBounds(transform.position);
         lastPos = transform.position;
 
-        // If dropletsPrefab is a ParticleSystem, instantiate once under the nozzle
+        // If dropletsPrefab has a ParticleSystem, create ONE in world space (not parented)
         if (dropletsPrefab && nozzle)
         {
             var maybePS = dropletsPrefab.GetComponent<ParticleSystem>();
             if (maybePS)
             {
-                var go = Instantiate(dropletsPrefab, nozzle.position, nozzle.rotation, nozzle);
-                ps = go.GetComponent<ParticleSystem>();
+                var go = Instantiate(dropletsPrefab);
+                go.transform.position = nozzle.position;
+                go.transform.rotation = (mode == SprayMode.Forward) ? nozzle.rotation : Quaternion.identity;
+                go.transform.localScale = Vector3.one;
 
-                // ► Make particles bigger
+                ps = go.GetComponent<ParticleSystem>();
                 var main = ps.main;
+                main.simulationSpace = ParticleSystemSimulationSpace.World;     // unaffected by sprinkler transforms
+                main.scalingMode = ParticleSystemScalingMode.Shape;
                 main.startSizeMultiplier *= particleSizeMult;
+
+                var emission = ps.emission; emission.rateOverTimeMultiplier = particleRate;
+
+                // For vertical mode, drive velocity downward
+                if (mode == SprayMode.VerticalDown)
+                {
+                    var velOver = ps.velocityOverLifetime;
+                    velOver.enabled = true;
+                    velOver.x = new ParticleSystem.MinMaxCurve(0f);
+                    velOver.y = new ParticleSystem.MinMaxCurve(-dropletSpeed);
+                }
 
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
@@ -79,7 +99,7 @@ public class SprinklerInteractive : MonoBehaviour
     {
         HandlePointerNewInput();
 
-        // Move and clamp
+        // Move & clamp
         Vector3 pos = transform.position;
         pos = Vector3.Lerp(pos, targetPos, 1f - Mathf.Exp(-moveLerp * Time.deltaTime));
         transform.position = ClampToBounds(pos);
@@ -91,18 +111,28 @@ public class SprinklerInteractive : MonoBehaviour
 
         // Tilt
         float speed = new Vector2(vel.x, vel.y).magnitude;
-        float desiredDelta = Mathf.Clamp(-vel.x * tiltPerUnitSpeed, -maxTilt, maxTilt);
+        float desiredDelta = tiltAlwaysForward
+            ? Mathf.Clamp(speed * tiltPerUnitSpeed, 0f, maxTilt)
+            : Mathf.Clamp(-vel.x * tiltPerUnitSpeed, -maxTilt, maxTilt);
+
         float desiredAngle = (dragging && speed > 0.01f) ? restAngleZ + desiredDelta : restAngleZ;
         float lerp = (dragging && speed > 0.01f) ? tiltLerp : returnLerp;
         float z = Mathf.LerpAngle(transform.eulerAngles.z, desiredAngle, 1f - Mathf.Exp(-lerp * Time.deltaTime));
         transform.rotation = Quaternion.Euler(0, 0, z);
+
+        // Keep particle system anchored at the nozzle
+        if (ps)
+        {
+            ps.transform.position = nozzle.position;
+            ps.transform.rotation = (mode == SprayMode.Forward) ? nozzle.rotation : Quaternion.identity;
+        }
 
         // Spray
         bool shouldSpray = speed >= spraySpeedThreshold && nozzle && dropletsPrefab;
         HandleSpray(shouldSpray);
     }
 
-    // ---------- Input (New Input System) ----------
+    // ---------- Input ----------
     void HandlePointerNewInput()
     {
         var cam = Camera.main; if (!cam) return;
@@ -155,7 +185,7 @@ public class SprinklerInteractive : MonoBehaviour
         }
     }
 
-    // ---------- Clamp (camera and sprite aware) ----------
+    // ---------- Clamp ----------
     Vector3 ClampToBounds(Vector3 p)
     {
         p.z = safeZ;
@@ -198,7 +228,7 @@ public class SprinklerInteractive : MonoBehaviour
             return;
         }
 
-        // Rigidbody2D drop spawner path
+        // Rigidbody2D path
         if (!on) { dropTimer = 0f; return; }
 
         dropTimer += Time.deltaTime * dropsPerSecond;
@@ -206,23 +236,32 @@ public class SprinklerInteractive : MonoBehaviour
         {
             dropTimer -= 1f;
 
-            Vector2 dir = nozzle ? (Vector2)nozzle.right : Vector2.right;
-            float jitter = Random.Range(-spread, spread);
-            dir = Quaternion.Euler(0, 0, jitter) * dir;
+            Vector2 dir;
+            if (mode == SprayMode.VerticalDown)
+            {
+                dir = Vector2.down;                  // ← always vertical
+            }
+            else
+            {
+                dir = nozzle ? (Vector2)nozzle.right : Vector2.right; // forward
+                if (spread != 0f)
+                    dir = Quaternion.Euler(0, 0, Random.Range(-spread, spread)) * dir;
+            }
 
             var drop = Instantiate(dropletsPrefab, nozzle.position, Quaternion.identity);
-
-            // ► make the drop bigger
             drop.transform.localScale *= dropletScale;
 
-            // pass the Grass Line into the drop so it can self-kill by Y
             var wd = drop.GetComponent<WaterDrop>();
             if (wd != null && grassKillLine != null)
                 wd.SetKillLine(grassKillLine, 0f, true);
 
             var rb = drop.GetComponent<Rigidbody2D>();
             if (rb != null)
-                rb.linearVelocity = dir.normalized * dropletSpeed + (Vector2)vel * 0.25f;
+            {
+                // No horizontal boost from hand movement for vertical mode
+                Vector2 addVel = (mode == SprayMode.VerticalDown) ? Vector2.zero : (Vector2)vel * 0.25f;
+                rb.linearVelocity = dir.normalized * dropletSpeed + addVel;
+            }
 
             if (dropLifetime > 0f) Destroy(drop, dropLifetime);
         }
