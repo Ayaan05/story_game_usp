@@ -60,40 +60,52 @@ public class SprinklerInteractive : MonoBehaviour
 
         var p = transform.position; p.z = safeZ; transform.position = p;
         targetPos = ClampToBounds(transform.position);
-        lastPos = transform.position;
+        lastPos   = transform.position;
 
-        // If dropletsPrefab has a ParticleSystem, create ONE in world space (not parented)
         if (dropletsPrefab && nozzle)
         {
-            var maybePS = dropletsPrefab.GetComponent<ParticleSystem>();
-            if (maybePS)
+            var prefabPS = dropletsPrefab.GetComponentInChildren<ParticleSystem>(true);
+            if (prefabPS)
             {
                 var go = Instantiate(dropletsPrefab);
                 go.transform.position = nozzle.position;
                 go.transform.rotation = (mode == SprayMode.Forward) ? nozzle.rotation : Quaternion.identity;
                 go.transform.localScale = Vector3.one;
 
-                ps = go.GetComponent<ParticleSystem>();
+                ps = go.GetComponentInChildren<ParticleSystem>(true);
+
                 var main = ps.main;
-                main.simulationSpace = ParticleSystemSimulationSpace.World;     // unaffected by sprinkler transforms
+                main.loop = true;
+                main.playOnAwake = false;
+                main.simulationSpace = ParticleSystemSimulationSpace.World;
                 main.scalingMode = ParticleSystemScalingMode.Shape;
-                main.startSizeMultiplier *= particleSizeMult;
+                main.stopAction = ParticleSystemStopAction.None;
+                main.maxParticles = Mathf.Max(main.maxParticles, 5000);
+    #if UNITY_2021_2_OR_NEWER
+                main.ringBufferMode = ParticleSystemRingBufferMode.PauseUntilReplaced;
+    #endif
+                main.startSizeMultiplier *= Mathf.Max(0.01f, particleSizeMult);
 
-                var emission = ps.emission; emission.rateOverTimeMultiplier = particleRate;
+                var emission = ps.emission;
+                emission.enabled = false; // start disabled; we enable when moving
+                if (emission.rateOverTime.constant <= 0f) emission.rateOverTime = 20f;
+                emission.rateOverTimeMultiplier = Mathf.Max(0.01f, particleRate);
 
-                // For vertical mode, drive velocity downward
                 if (mode == SprayMode.VerticalDown)
                 {
                     var velOver = ps.velocityOverLifetime;
                     velOver.enabled = true;
                     velOver.x = new ParticleSystem.MinMaxCurve(0f);
-                    velOver.y = new ParticleSystem.MinMaxCurve(-dropletSpeed);
+                    velOver.y = new ParticleSystem.MinMaxCurve(-Mathf.Abs(dropletSpeed));
+                    velOver.z = new ParticleSystem.MinMaxCurve(0f);
                 }
 
-                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            // Ensure a clean, non-emitting idle state (don’t Clear)
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
         }
     }
+
 
     void Update()
     {
@@ -220,15 +232,28 @@ public class SprinklerInteractive : MonoBehaviour
     // ---------- Spray ----------
     void HandleSpray(bool on)
     {
-        // ParticleSystem path
         if (ps)
         {
-            if (on && !ps.isPlaying) ps.Play();
-            else if (!on && ps.isPlaying) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        // Toggle emission instead of relying on isPlaying
+            var emission = ps.emission;
+
+            if (on)
+            {
+                if (!emission.enabled) emission.enabled = true;
+
+            // If PS is not emitting (was previously stopped), force a Play()
+                if (!ps.isEmitting) ps.Play(true);
+            }
+            else
+            {
+            // Stop spawning new particles, let existing ones die naturally
+                if (emission.enabled) emission.enabled = false;
+            // Don't call StopEmitting here; it confuses restart logic (isPlaying stays true)
+            }
             return;
         }
 
-        // Rigidbody2D path
+    // ---------- Rigidbody2D path (unchanged) ----------
         if (!on) { dropTimer = 0f; return; }
 
         dropTimer += Time.deltaTime * dropsPerSecond;
@@ -236,29 +261,20 @@ public class SprinklerInteractive : MonoBehaviour
         {
             dropTimer -= 1f;
 
-            Vector2 dir;
-            if (mode == SprayMode.VerticalDown)
-            {
-                dir = Vector2.down;                  // ← always vertical
-            }
-            else
-            {
-                dir = nozzle ? (Vector2)nozzle.right : Vector2.right; // forward
-                if (spread != 0f)
-                    dir = Quaternion.Euler(0, 0, Random.Range(-spread, spread)) * dir;
-            }
+            Vector2 dir = (mode == SprayMode.VerticalDown) ? Vector2.down :
+                        (nozzle ? (Vector2)nozzle.right : Vector2.right);
+            if (mode != SprayMode.VerticalDown && spread != 0f)
+                dir = (Vector2)(Quaternion.Euler(0, 0, Random.Range(-spread, spread)) * dir);
 
             var drop = Instantiate(dropletsPrefab, nozzle.position, Quaternion.identity);
             drop.transform.localScale *= dropletScale;
 
             var wd = drop.GetComponent<WaterDrop>();
-            if (wd != null && grassKillLine != null)
-                wd.SetKillLine(grassKillLine, 0f, true);
+            if (wd != null && grassKillLine != null) wd.SetKillLine(grassKillLine, 0f, true);
 
             var rb = drop.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
-                // No horizontal boost from hand movement for vertical mode
                 Vector2 addVel = (mode == SprayMode.VerticalDown) ? Vector2.zero : (Vector2)vel * 0.25f;
                 rb.linearVelocity = dir.normalized * dropletSpeed + addVel;
             }
@@ -266,4 +282,5 @@ public class SprinklerInteractive : MonoBehaviour
             if (dropLifetime > 0f) Destroy(drop, dropLifetime);
         }
     }
+
 }

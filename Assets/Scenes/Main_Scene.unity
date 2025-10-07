@@ -1591,7 +1591,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 4
   m_Sprite: {fileID: -5887767759907380095, guid: 2e1841009370741fc8eb88dab75dea10, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2940,6 +2940,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2619571775286362658, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ringBufferMode
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
