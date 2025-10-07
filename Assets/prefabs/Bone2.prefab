@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2455951141405297309}
   - component: {fileID: 6160390649792500711}
   - component: {fileID: 1599904402804531517}
-  - component: {fileID: -8587026149240065336}
+  - component: {fileID: 8750029041937611490}
   m_Layer: 0
-  m_Name: Bone1
+  m_Name: Bone2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9080709091962856353}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.30070826, w: 0.95371616}
-  m_LocalPosition: {x: 9.152124, y: 99.645256, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0.43779993, w: 0.89907247}
+  m_LocalPosition: {x: 9.344315, y: 99.34879, z: 0}
   m_LocalScale: {x: 0.2092702, y: 0.1720977, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -35}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -51.927}
 --- !u!212 &251056501879460715
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -281,7 +281,7 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
   volume: 1
   maxSeconds: 1.5
---- !u!114 &-8587026149240065336
+--- !u!114 &8750029041937611490
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeAlphaOnly
-  duration: 1
+  duration: 0.2
   startAlpha: 1
   endAlpha: 1
   ease:
