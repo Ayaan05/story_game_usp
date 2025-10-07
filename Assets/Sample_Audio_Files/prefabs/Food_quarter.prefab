@@ -13,8 +13,10 @@ GameObject:
   - component: {fileID: 2455951141405297309}
   - component: {fileID: 6160390649792500711}
   - component: {fileID: 1599904402804531517}
+  - component: {fileID: 5913669850428130971}
+  - component: {fileID: -224358588584124246}
   m_Layer: 0
-  m_Name: Food_3quarters
+  m_Name: Food_quarter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,7 +84,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 3135643646890536159, guid: 76b9e9a128aff476a8a57486c77ab01a, type: 3}
+  m_Sprite: {fileID: -859516521095090244, guid: 782d3fca57497445395b2fbe89463e1e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -131,7 +133,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 28.755898, y: 23.14}
+    oldSize: {x: 28.755898, y: 15.3}
     newSize: {x: 28.755898, y: 30.77}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -254,17 +256,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClickDestroySpawn
   items:
-  - name: Half
-    prefab: {fileID: 9080709091962856353, guid: edc726e3f74544960b922a169fe16a82, type: 3}
+  - name: Sparkles
+    prefab: {fileID: 5065185621050550251, guid: e2d1f921839fb49cfb8c5245b8fbd43b, type: 3}
     mode: 0
     worldPosition: {x: 0, y: 0, z: 0}
-    offset: {x: 0, y: -0.5, z: 0}
+    offset: {x: 1.35, y: 1, z: 0}
     parent: {fileID: 0}
     copyRotation: 0
     copyScale: 0
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+  fadeOutDuration: 0.1
+  fadeInDuration: 0.1
 --- !u!114 &1599904402804531517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,3 +284,55 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
   volume: 1
   maxSeconds: 1.5
+--- !u!225 &5913669850428130971
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080709091962856353}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &-224358588584124246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080709091962856353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeAlphaOnly
+  duration: 0
+  startAlpha: 1
+  endAlpha: 1
+  ease:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.3916664
+      value: 0.014282227
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startHeight: 0

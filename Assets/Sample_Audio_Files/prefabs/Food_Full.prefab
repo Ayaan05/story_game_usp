@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6683417932896458594}
   - component: {fileID: -5972103935789825089}
   - component: {fileID: -2253719391118142075}
-  - component: {fileID: -7644846693121065094}
   m_Layer: 0
   m_Name: Food_Full
   m_TagString: Untagged
@@ -82,7 +81,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_Sprite: {fileID: -3573647205432745953, guid: 5412c0259b83546de803929651dfd366, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -266,6 +265,8 @@ MonoBehaviour:
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+  fadeOutDuration: 0.1
+  fadeInDuration: 0.1
 --- !u!114 &-2253719391118142075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,68 +282,3 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 26d9f91b6977f44f984020744746d422, type: 3}
   volume: 1
   maxSeconds: 1.5
---- !u!114 &-7644846693121065094
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9059753268149791975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9528628f17ea44f12ac2e8ac042d1052, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteFadeInOnEnable
-  startHeight: 1
-  fallTime: 0.5
-  fallEase:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  fadeTime: 0.5
-  fadeEase:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  squashAmount: 0
-  squashTime: 0

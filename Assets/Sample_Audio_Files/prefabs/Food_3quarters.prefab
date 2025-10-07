@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6160390649792500711}
   - component: {fileID: 1599904402804531517}
   m_Layer: 0
-  m_Name: Food_Half
+  m_Name: Food_3quarters
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 7013722626390189517, guid: b7f5b2cc1839e4a15854f9238ffeeacd, type: 3}
+  m_Sprite: {fileID: 3135643646890536159, guid: 76b9e9a128aff476a8a57486c77ab01a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -131,7 +131,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 28.755898, y: 17.2}
+    oldSize: {x: 28.755898, y: 23.14}
     newSize: {x: 28.755898, y: 30.77}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -254,17 +254,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClickDestroySpawn
   items:
-  - name: Quarter
-    prefab: {fileID: 9080709091962856353, guid: 60968db162d3f4b2fbe17a3674eebd3b, type: 3}
+  - name: Half
+    prefab: {fileID: 9080709091962856353, guid: edc726e3f74544960b922a169fe16a82, type: 3}
     mode: 0
     worldPosition: {x: 0, y: 0, z: 0}
-    offset: {x: 0, y: -0.2, z: 0}
+    offset: {x: 0, y: -0.5, z: 0}
     parent: {fileID: 0}
     copyRotation: 0
     copyScale: 0
     zRotation: 0
     enabled: 1
   destroyThisOnClick: 1
+  fadeOutDuration: 0.1
+  fadeInDuration: 0.1
 --- !u!114 &1599904402804531517
 MonoBehaviour:
   m_ObjectHideFlags: 0

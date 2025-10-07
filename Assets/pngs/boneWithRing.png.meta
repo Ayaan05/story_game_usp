@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1d5af2e02f1df4fd1999480a613a19a7
+guid: ed55a16e137074656938133c6175fa6b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8403215288983880825
-    second: hand_0
+      213: 4268780446584763693
+    second: boneWithRing_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: hand_0
+      name: boneWithRing_0
       rect:
         serializedVersion: 2
-        x: 22
-        y: 12
-        width: 136
-        height: 104
+        x: 2366
+        y: 4293
+        width: 1563
+        height: 1109
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 974040f78c73e9470800000000000000
-      internalID: 8403215288983880825
+      spriteID: d2571def231cd3b30800000000000000
+      internalID: 4268780446584763693
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      hand_0: 8403215288983880825
+      boneWithRing_0: 4268780446584763693
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
