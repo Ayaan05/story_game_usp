@@ -6,6 +6,9 @@ public class DogCleanliness : MonoBehaviour
     [Header("Dog Renderers")]
     public SpriteRenderer cleanSprite;   // CleanDog
     public SpriteRenderer dirtySprite;   // DirtyDog
+    public TailWag tailWag; 
+    public DogBlinkOneSprite blink; // assign in Inspector
+
 
     [Header("Mask Control")]
     public Transform maskContainer;      // parent with your SpriteMasks (all disabled at start)
@@ -65,6 +68,9 @@ public class DogCleanliness : MonoBehaviour
     {
         popped = Mathf.Clamp(poppedCount, 0, totalBubbles);
         UpdateReveal();
+        // inside ReportPopped(int p)
+if (blink) blink.SetProgress01(totalBubbles > 0 ? (float)popped / totalBubbles : 0f);
+
     }
 
     public void AllClean()
@@ -73,6 +79,8 @@ public class DogCleanliness : MonoBehaviour
         SetActiveCount(revealMasks.Count);
         if (sparklesParent) sparklesParent.SetActive(true);
         if (dirtySprite) { var c = dirtySprite.color; c.a = 0f; dirtySprite.color = c; } // optional: snap dirt off
+        if (tailWag) tailWag.SetHappy();  // stays at happySpeed forever
+
     }
     // ----------------------------------------
 

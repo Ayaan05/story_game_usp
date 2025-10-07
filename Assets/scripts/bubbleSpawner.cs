@@ -1,51 +1,49 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Spawns big + small bubbles (circles) inside a BoxCollider2D area:
-/// - Picks a random WORLD radius per instance within your ranges
-/// - Computes localScale so CircleCollider2D's *world* radius == target radius
-/// - Keeps circles fully inside the area (edgePadding)
-/// - Guarantees no overlap: uses analytic distance check + Physics2D.OverlapCircle (Unity docs)
-/// - Places big first, then small (better packing)
-/// - Reports progress to DogCleanliness
-/// </summary>
 public class BubbleSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     public Bubble smallPrefab;
     public Bubble bigPrefab;
 
-    [Header("Counts")]
-    public int smallCount = 10;
-    public int bigCount   = 6;
+    // --- EXACT VALUES YOU ASKED FOR ---
+    [Header("Counts (INTENDED totals)")]
+    public int smallCount = 14;  // ← exact
+    public int bigCount   = 10;  // ← exact
+
+    [Header("Reserve one BIG (for your hand/tutorial bubble)")]
+    [Tooltip("We spawn one less BIG than 'bigCount', but still count full (small+big).")]
+    public bool reserveOneBig = true;
 
     [Header("Exact WORLD radius ranges (units)")]
-    public Vector2 smallRadiusRange = new Vector2(0.30f, 0.40f);
-    public Vector2 bigRadiusRange   = new Vector2(0.55f, 0.70f);
+    public Vector2 smallRadiusRange = new Vector2(0.3f, 1.3f);  // ← exact
+    public Vector2 bigRadiusRange   = new Vector2(1.3f, 2.5f);  // ← exact
 
     [Header("Spacing & Bounds")]
-    [Tooltip("Extra gap between any two circles (world units).")]
-    public float paddingBetweenBubbles = 0.05f;
-    [Tooltip("Gap between circle edge and the spawn area edge (world units).")]
-    public float edgePadding = 0.03f;
-    public int   maxPlacementTries = 200;
+    public float paddingBetweenBubbles = 0.05f; // ← exact
+    public float edgePadding           = 0.03f; // ← exact
+    public int   maxPlacementTries     = 100;   // ← exact
 
-    [Header("Area & Layers")]
-    [Tooltip("Axis-aligned BoxCollider2D that defines the spawn region (Is Trigger = true).")]
-    public BoxCollider2D spawnArea;
-    [Tooltip("LayerMask used only for OverlapCircle tests (e.g., include the 'Bubble' layer).")]
+    [Header("Spawn Area (choose ONE)")]
+    [Tooltip("Preferred: PolygonCollider2D (IsTrigger = true).")]
+    public PolygonCollider2D spawnPolygon;
+    [Tooltip("Fallback: BoxCollider2D (IsTrigger = true).")]
+    public BoxCollider2D     spawnBox;
+
+    [Header("Layers")]
+    [Tooltip("LayerMask used by OverlapCircle safety checks (must include 'Bubble' layer).")]
     public LayerMask bubbleMask;
 
     [Header("Progress Hook (optional)")]
     public DogCleanliness dog;
 
-    // Runtime bookkeeping for analytic non-overlap checks
-    readonly List<Vector2> centers = new(); // circle centers (world)
-    readonly List<float>   radii   = new(); // circle radii  (world)
+    // runtime
+    readonly List<Vector2> centers = new();
+    readonly List<float>   radii   = new();
     readonly List<Bubble>  live    = new();
 
-    int totalToSpawn;
+    int intendedTotal;   // what DogCleanliness should expect (small+big)
     int poppedSoFar;
 
     void OnEnable()  { Bubble.OnAnyPopped += HandleBubblePopped; }
@@ -53,10 +51,16 @@ public class BubbleSpawner : MonoBehaviour
 
     void Awake()
     {
-        if (!spawnArea) spawnArea = GetComponent<BoxCollider2D>();
-        if (!spawnArea) Debug.LogError("BubbleSpawner needs a BoxCollider2D assigned to 'spawnArea'.");
+        if (!spawnPolygon && !spawnBox)
+        {
+            spawnPolygon = GetComponent<PolygonCollider2D>();
+            if (!spawnPolygon) spawnBox = GetComponent<BoxCollider2D>();
+        }
+        if (!spawnPolygon && !spawnBox)
+            Debug.LogError("BubbleSpawner: assign a PolygonCollider2D or BoxCollider2D as the spawn area (IsTrigger = true).");
+
         if (transform.lossyScale != Vector3.one)
-            Debug.LogWarning("BubbleSpawner has non-1 scale; prefer (1,1,1) so world radius math is exact.");
+            Debug.LogWarning("BubbleSpawner: parent has non-1 scale; world-radius math assumes (1,1,1).");
     }
 
     void Start() => RespawnInternal();
@@ -64,11 +68,11 @@ public class BubbleSpawner : MonoBehaviour
     void HandleBubblePopped(Bubble b)
     {
         poppedSoFar++;
-        live.Remove(b);
+        live.Remove(b); // OK if this bubble wasn't spawned by us (e.g., your manual one)
         if (dog)
         {
             dog.ReportPopped(poppedSoFar);
-            if (poppedSoFar >= totalToSpawn) dog.AllClean();
+            if (poppedSoFar >= intendedTotal) dog.AllClean();
         }
     }
 
@@ -77,7 +81,7 @@ public class BubbleSpawner : MonoBehaviour
 
     void RespawnInternal()
     {
-        // Clear children
+        // clear existing children
         foreach (Transform c in transform)
         {
             if (Application.isPlaying) Destroy(c.gameObject);
@@ -86,12 +90,17 @@ public class BubbleSpawner : MonoBehaviour
         centers.Clear(); radii.Clear(); live.Clear();
         poppedSoFar = 0;
 
-        // Pack big first, then small (better)
-        PlaceBatch(bigPrefab, bigCount, bigRadiusRange);
-        PlaceBatch(smallPrefab, smallCount, smallRadiusRange);
+        // what DogCleanliness should expect (FULL counts)
+        intendedTotal = Mathf.Max(0, smallCount) + Mathf.Max(0, bigCount);
+        if (dog) { dog.SetTotal(intendedTotal); dog.ReportPopped(0); }
 
-        totalToSpawn = live.Count;
-        if (dog) { dog.SetTotal(totalToSpawn); dog.ReportPopped(0); }
+        // what we actually spawn:
+        int bigToSpawn   = Mathf.Max(0, bigCount - (reserveOneBig ? 1 : 0)); // ← one less big
+        int smallToSpawn = Mathf.Max(0, smallCount);
+
+        // place big first, then small
+        PlaceBatch(bigPrefab,   bigToSpawn,   bigRadiusRange);
+        PlaceBatch(smallPrefab, smallToSpawn, smallRadiusRange);
     }
 
     void PlaceBatch(Bubble prefab, int count, Vector2 radiusRange)
@@ -105,10 +114,8 @@ public class BubbleSpawner : MonoBehaviour
             return;
         }
 
-        // Cached scales
         float basePrefabScale = Mathf.Max(prefab.transform.localScale.x, prefab.transform.localScale.y);
         float parentScale     = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
-        Bounds b              = spawnArea.bounds;
 
         for (int i = 0; i < count; i++)
         {
@@ -116,54 +123,37 @@ public class BubbleSpawner : MonoBehaviour
 
             for (int tries = 0; tries < maxPlacementTries; tries++)
             {
-                // 1) Choose a target WORLD radius within range
+                // pick a target world radius
                 float targetR = Random.Range(radiusRange.x, radiusRange.y);
 
-                // 2) Compute local scale so collider's WORLD radius == targetR
-                //    CircleCollider2D.radius is in local units. WORLD radius = radius * prefabScale * parentScale.
+                // compute local scale so collider's WORLD radius == targetR
                 float denom = prefabCol.radius * Mathf.Max(0.0001f, basePrefabScale) * Mathf.Max(0.0001f, parentScale);
                 float S = targetR / denom;
 
-                // 3) Account for collider offset to get the actual circle center
+                // collider center offset in world
                 Vector2 offsetWorld = prefabCol.offset * basePrefabScale * S * parentScale;
 
-                // 4) Sample a random circle center INSIDE the spawn bounds, contracted by radius + edge padding
-                float xmin = b.min.x + targetR + edgePadding;
-                float xmax = b.max.x - targetR - edgePadding;
-                float ymin = b.min.y + targetR + edgePadding;
-                float ymax = b.max.y - targetR - edgePadding;
+                // sample a circle center fully inside area (with edge padding)
+                if (!TryGetRandomCenter(targetR, out var center))
+                    break;
 
-                if (xmax <= xmin || ymax <= ymin)
-                {
-                    Debug.LogWarning("Spawn area too small for requested radii + edgePadding.");
-                    return;
-                }
+                // analytic non-overlap vs already placed
+                if (!IsNonOverlapping(center, targetR)) continue;
 
-                // Sample the *circle center* first, then derive transform.position from it
-                Vector2 circleCenter = new Vector2(Random.Range(xmin, xmax), Random.Range(ymin, ymax));
-                Vector2 pos = circleCenter - offsetWorld; // transform.position we will use
+                // safety: modern Physics2D.OverlapCircle
+                float testR = targetR + paddingBetweenBubbles * 0.5f;
+                if (Physics2D.OverlapCircle(center, testR, bubbleMask) != null) continue;
 
-                // 5) Analytic non-overlap vs placed circles: distance >= r_i + r_j + padding
-                if (!IsNonOverlapping(circleCenter, targetR))
-                    continue;
+                // center -> transform.position
+                Vector2 pos = center - offsetWorld;
 
-                // 6) Physics2D preflight to avoid any other colliders (Unity docs: Physics2D.OverlapCircle)
-                //    Signature: OverlapCircle(Vector2 point, float radius, int layerMask);
-                //    Returns the first Collider2D overlapping the circle area, or null.
-                float physicsTestR = targetR + paddingBetweenBubbles * 0.5f;
-                Collider2D hit = Physics2D.OverlapCircle(circleCenter, physicsTestR, bubbleMask);
-                if (hit != null) continue; // something else is there; retry
-
-                // 7) Instantiate at the chosen position with computed scale
                 var inst = Instantiate(prefab, pos, Quaternion.identity, transform);
                 inst.transform.localScale = prefab.transform.localScale * S;
 
-                // Single-layer assignment (index), not a bitmask
                 int bubbleIdx = LayerMask.NameToLayer("Bubble");
                 if (bubbleIdx != -1) inst.gameObject.layer = bubbleIdx;
 
-                // 8) Commit bookkeeping (now that it's valid)
-                centers.Add(circleCenter);
+                centers.Add(center);
                 radii.Add(targetR);
                 live.Add(inst);
                 placed = true;
@@ -172,24 +162,86 @@ public class BubbleSpawner : MonoBehaviour
 
             if (!placed)
             {
-                Debug.LogWarning($"Could not place a {prefab.name} after {maxPlacementTries} tries. " +
-                                 $"Reduce counts/radii/padding or enlarge spawn area.");
-                // continue to try the rest, or break; we continue to place as many as possible
+                Debug.LogWarning($"Could not place a {prefab.name} after {maxPlacementTries} tries. Shrink radii/padding or enlarge area.");
+                // continue trying remaining ones
             }
         }
     }
 
-    /// <summary>
-    /// True if candidate circle at 'candidateCenter' with radius 'r' does not overlap any placed circle,
-    /// using distance-squared test: d^2 >= (r_i + r_j + padding)^2
-    /// </summary>
-    bool IsNonOverlapping(Vector2 candidateCenter, float r)
+    bool TryGetRandomCenter(float r, out Vector2 center)
+    {
+        // polygon first
+        if (spawnPolygon)
+        {
+            var b = spawnPolygon.bounds;
+            for (int i = 0; i < maxPlacementTries; i++)
+            {
+                var p = new Vector2(Random.Range(b.min.x, b.max.x),
+                                    Random.Range(b.min.y, b.max.y));
+                if (!spawnPolygon.OverlapPoint(p)) continue;
+                if (!InsidePolygonWithMargin(spawnPolygon, p, r + edgePadding)) continue;
+                center = p;
+                return true;
+            }
+            center = default;
+            return false;
+        }
+
+        // box fallback
+        if (spawnBox)
+        {
+            Bounds b = spawnBox.bounds;
+            float xmin = b.min.x + r + edgePadding;
+            float xmax = b.max.x - r - edgePadding;
+            float ymin = b.min.y + r + edgePadding;
+            float ymax = b.max.y - r - edgePadding;
+            if (xmax <= xmin || ymax <= ymin) { center = default; return false; }
+
+            center = new Vector2(Random.Range(xmin, xmax), Random.Range(ymin, ymax));
+            return true;
+        }
+
+        center = default;
+        return false;
+    }
+
+    // inside polygon AND at least 'margin' from edges
+    bool InsidePolygonWithMargin(PolygonCollider2D poly, Vector2 worldP, float margin)
+    {
+        if (!poly.OverlapPoint(worldP)) return false;
+
+        float minDist = float.PositiveInfinity;
+        for (int path = 0; path < poly.pathCount; path++)
+        {
+            var pts = poly.GetPath(path); // local
+            if (pts == null || pts.Length < 2) continue;
+
+            for (int i = 0; i < pts.Length; i++)
+            {
+                Vector2 a = poly.transform.TransformPoint(pts[i]);
+                Vector2 b = poly.transform.TransformPoint(pts[(i + 1) % pts.Length]);
+                float d = DistancePointSegment(worldP, a, b);
+                if (d < minDist) minDist = d;
+                if (minDist < margin) return false; // early out
+            }
+        }
+        return minDist >= margin;
+    }
+
+    static float DistancePointSegment(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        float t = Vector2.Dot(p - a, ab) / Mathf.Max(1e-6f, ab.sqrMagnitude);
+        t = Mathf.Clamp01(t);
+        return Vector2.Distance(p, a + t * ab);
+    }
+
+    bool IsNonOverlapping(Vector2 c, float r)
     {
         for (int i = 0; i < centers.Count; i++)
         {
             float rr = r + radii[i] + paddingBetweenBubbles;
-            if ((candidateCenter - centers[i]).sqrMagnitude < rr * rr)
-                return false;
+            if ((c - centers[i]).sqrMagnitude < rr * rr) return false;
         }
         return true;
     }
@@ -197,14 +249,26 @@ public class BubbleSpawner : MonoBehaviour
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
-        if (!spawnArea) return;
-        Gizmos.color = new Color(0,1,1,0.12f);
-        Gizmos.DrawCube(spawnArea.bounds.center, spawnArea.bounds.size);
+        Gizmos.color = new Color(0,1,1,0.10f);
+        if (spawnPolygon) Gizmos.DrawCube(spawnPolygon.bounds.center, spawnPolygon.bounds.size);
+        else if (spawnBox) Gizmos.DrawCube(spawnBox.bounds.center, spawnBox.bounds.size);
 
-        // Visualize placed circles in Play Mode
         Gizmos.color = new Color(1,1,1,0.45f);
-        for (int i = 0; i < centers.Count; i++)
-            Gizmos.DrawWireSphere(centers[i], radii[i]);
+        for (int i = 0; i < centers.Count; i++) Gizmos.DrawWireSphere(centers[i], radii[i]);
     }
 #endif
+
+    // quick button to reapply your exact preset values if the Inspector got changed
+    [ContextMenu("Apply EXACT Preset Values")]
+    void ApplyPreset()
+    {
+        smallCount = 14;
+        bigCount   = 10;
+        smallRadiusRange = new Vector2(0.3f, 1.3f);
+        bigRadiusRange   = new Vector2(1.3f, 2.5f);
+        paddingBetweenBubbles = 0.05f;
+        edgePadding = 0.03f;
+        maxPlacementTries = 100;
+        reserveOneBig = true;
+    }
 }
