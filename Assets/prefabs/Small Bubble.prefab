@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5543451777970020762}
   - component: {fileID: 4526145670154540433}
   - component: {fileID: 1446396764062492059}
+  - component: {fileID: 7126373802165283065}
   m_Layer: 7
   m_Name: Small Bubble
   m_TagString: Untagged
@@ -158,7 +159,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: cd5de4dbe7ff344d38657f5a6b17937b, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -243,3 +244,28 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7126373802165283065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936845504957276381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a9771982ce945bf84ba9ef94fdb1af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BubbleFloat
+  bobAmplitude: 0.18
+  swayAmplitude: 0.12
+  rotAmplitude: 4
+  breatheAmount: 0.02
+  bobSpeed: 0.25
+  swaySpeed: 0.2
+  rotSpeed: 0.18
+  breatheSpeed: 0.22
+  ampJitter: {x: 0.85, y: 1.15}
+  speedJitter: {x: 0.85, y: 1.15}
+  autoTuneFromBubble: 1
+  bigAmpMultiplier: 1.2
+  smallAmpMultiplier: 0.9
