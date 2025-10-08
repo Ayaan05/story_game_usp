@@ -27,6 +27,10 @@ public class BoxPourSpawn : MonoBehaviour
     [Tooltip("Offsets for each fade prefab. Should match the size of fadePrefabs.")]
     public Vector3[] fadeOffsets;
 
+    [Header("Destruction")]
+    [Tooltip("Duration over which spawned prefabs will fade out before being destroyed.")]
+    public float fadeOutDuration = 0.5f;
+
     private bool poured;
     private BoxDragTilt2D tiltSource;
     private GameObject[] spawnedPrefabs;
@@ -146,11 +150,64 @@ public class BoxPourSpawn : MonoBehaviour
             finalSpriteRenderer.color = targetColor;
         }
 
-        foreach (var go in spawnedPrefabs)
+        // --- OLD CODE:
+        // foreach (var go in spawnedPrefabs)
+        // {
+        //     if (go != null)
+        //     {
+        //         Destroy(go);
+        //     }
+        // }
+        // --- NEW CODE: Start the fade-out coroutine
+        StartCoroutine(FadeOutAndDestroyAll(spawnedPrefabs));
+    }
+    
+    // New Coroutine to handle smooth fade-out destruction
+    private IEnumerator FadeOutAndDestroyAll(GameObject[] targets)
+    {
+        if (targets == null || targets.Length == 0) yield break;
+
+        float timer = 0f;
+        float duration = fadeOutDuration; // Use the public duration
+
+        // Create a list to store the original colors and sprite renderers
+        var renderers = new System.Collections.Generic.List<SpriteRenderer>();
+        var startColors = new System.Collections.Generic.List<Color>();
+
+        // Initialization pass: Collect renderers and set up colors
+        foreach (var target in targets)
         {
-            if (go != null)
+            if (target != null)
             {
-                Destroy(go);
+                SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    renderers.Add(sr);
+                    startColors.Add(sr.color);
+                }
+            }
+        }
+
+        // Fade-out pass
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / duration;
+
+            for (int i = 0; i < renderers.Count; i++)
+            {
+                Color currentColor = Color.Lerp(startColors[i], Color.clear, t);
+                renderers[i].color = currentColor;
+            }
+            yield return null;
+        }
+
+        // Final destruction pass
+        foreach (var target in targets)
+        {
+            if (target != null)
+            {
+                Destroy(target);
             }
         }
     }
