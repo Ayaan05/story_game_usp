@@ -47,6 +47,20 @@ public class SprinklerInteractive : MonoBehaviour
     [Header("Spray FX Tuning")]
     [SerializeField] bool flipNozzleKick = false;   // tick in Inspector if the spit goes backward
 
+    
+    [Header("Projectile Spray")]
+    [SerializeField] float launchSpeed = 7.5f;     // how far it throws
+    [SerializeField] float gravityAccel = 9.0f;    // how fast it drops
+    [SerializeField] bool  projectileToLeft = true;// true = throw left, false = right
+
+    [Header("Single-drop mode (ParticleSystem)")]
+    [SerializeField] bool singleDrops = true;        // turn ON to emit one-at-a-time
+    [SerializeField] float dropsPerSecondPS = 6f;    // spacing between single drops
+    float emitBucketPS;
+
+
+
+
 
     bool dragging;
     Vector3 grabOffset;
@@ -58,15 +72,12 @@ public class SprinklerInteractive : MonoBehaviour
 
     void OnEnable()
     {
-        sr = GetComponent<SpriteRenderer>();
+        sr  = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
 
-        var p = transform.position;
-        p.z = safeZ;
-        transform.position = p;
-
+        var p = transform.position; p.z = safeZ; transform.position = p;
         targetPos = ClampToBounds(transform.position);
-        lastPos = transform.position;
+        lastPos   = transform.position;
 
         if (ps != null && ps.gameObject != null)
             Destroy(ps.gameObject);
@@ -78,92 +89,102 @@ public class SprinklerInteractive : MonoBehaviour
             {
                 var go = Instantiate(dropletsPrefab);
                 go.transform.position = nozzle.position;
-                go.transform.rotation = (mode == SprayMode.Forward) ? nozzle.rotation : Quaternion.identity;
                 go.transform.localScale = Vector3.one;
 
                 ps = go.GetComponentInChildren<ParticleSystem>(true);
 
-                // ---- Main ----
+                // ----- Main -----
                 var main = ps.main;
-                main.loop = true;
-                main.playOnAwake = false;
-                main.simulationSpace = ParticleSystemSimulationSpace.World;
-                main.scalingMode = ParticleSystemScalingMode.Shape;
-                main.stopAction = ParticleSystemStopAction.None;
-                main.maxParticles = Mathf.Max(main.maxParticles, 5000);
+                main.loop            = true;
+                main.playOnAwake     = false;
+                main.simulationSpace = ParticleSystemSimulationSpace.World; // critical
+                main.scalingMode     = ParticleSystemScalingMode.Shape;
+                main.stopAction      = ParticleSystemStopAction.None;
+                main.maxParticles    = Mathf.Max(main.maxParticles, 5000);
     #if UNITY_2021_2_OR_NEWER
-                main.ringBufferMode = ParticleSystemRingBufferMode.PauseUntilReplaced;
+                main.ringBufferMode  = ParticleSystemRingBufferMode.PauseUntilReplaced;
     #endif
                 main.startSizeMultiplier *= Mathf.Max(0.01f, particleSizeMult);
-                main.startSpeed = 0f;          // drive via Velocity over Lifetime
-                main.gravityModifier = 0f;     // keep speeds constant
 
-                // ---- Emission (idle by default; toggled in HandleSpray) ----
+                // start idle; HandleSpray() toggles emission
                 var emission = ps.emission;
-                emission.enabled = false;
-                if (emission.rateOverTime.constant <= 0f) emission.rateOverTime = 20f;
-                emission.rateOverTimeMultiplier = Mathf.Max(0.01f, particleRate);
+                emission.enabled = false;          // MUST be off (we emit manually)
+                emission.rateOverTime = 0f;        // no continuous stream
+                emission.rateOverDistance = 0f;    // no distance-based emission
 
-                // No inherit from hand motion
-                var iv = ps.inheritVelocity;
-                iv.enabled = false;
+                var iv = ps.inheritVelocity; iv.enabled = false;
 
-                // ---- Velocity over Lifetime ----
-                var velOver = ps.velocityOverLifetime;
+                var velOver   = ps.velocityOverLifetime; velOver.enabled = false;
+                var forceOver = ps.forceOverLifetime;   forceOver.enabled = false;
 
+                // -------------------- MODE SETUP --------------------
                 if (mode == SprayMode.VerticalDown)
                 {
+                    // your non-projectile stream
+                    main.startSpeed      = 0f;
+                    main.gravityModifier = 0f;
+
                     velOver.enabled = true;
-                    velOver.space = ParticleSystemSimulationSpace.World;  // global X/Y/Z
+                    velOver.space   = ParticleSystemSimulationSpace.World;
 
-                    // -------- HORIZONTAL SPIT (stronger + held longer) --------
-                    // Determine left/right by nozzle facing; flip via toggle if needed
+                    // tiny spit then steady fall (keep if you still want this mode)
                     float xSign = (Vector2.Dot(nozzle.right, Vector2.right) >= 0f) ? 1f : -1f;
-                    if (flipNozzleKick) xSign *= -1f;
-
-                    // TUNABLES: raise for even more “spit”
-                    float xKickAbs  = 5.5f;   // initial horizontal speed
-                    float xHoldTime = 0.28f;  // time it stays flat at full kick
-                    float xFadeTime = 0.75f;  // time by which it has fully faded to 0
-
                     var xCurve = new AnimationCurve(
-                        new Keyframe(0.00f,  xKickAbs * xSign),
-                        new Keyframe(xHoldTime, xKickAbs * xSign),
-                        new Keyframe(xFadeTime, 0f),
-                        new Keyframe(1.00f, 0f)
+                        new Keyframe(0f, 5.5f * xSign),
+                        new Keyframe(0.28f, 5.5f * xSign),
+                        new Keyframe(0.75f, 0f),
+                        new Keyframe(1f, 0f)
                     );
                     velOver.x = new ParticleSystem.MinMaxCurve(1f, xCurve);
 
-                    // -------- VERTICAL DROP (delayed ramp so it stays horizontal) --------
-                    // Start almost flat, then ramp to full fall later.
-                    float fullFall  = -Mathf.Abs(dropletSpeed); // e.g., -6
-                    float startFall = -0.02f;                   // ~0 keeps it horizontal at first
-                    float fallRampT = 0.55f;                    // later ramp => “turns vertical” later
-
+                    float fall = -Mathf.Abs(dropletSpeed);
                     var yCurve = new AnimationCurve(
-                        new Keyframe(0.00f, startFall),
-                        new Keyframe(fallRampT, fullFall),
-                        new Keyframe(1.00f, fullFall)
+                        new Keyframe(0f, -0.02f),
+                        new Keyframe(0.55f, fall),
+                        new Keyframe(1f, fall)
                     );
                     velOver.y = new ParticleSystem.MinMaxCurve(1f, yCurve);
 
-                    // Z stays zero (flat)
-                    var zCurve = new AnimationCurve(
-                        new Keyframe(0f, 0f),
-                        new Keyframe(1f, 0f)
-                    );
-                    velOver.z = new ParticleSystem.MinMaxCurve(1f, zCurve);
+                    velOver.z = new ParticleSystem.MinMaxCurve(1f,
+                        new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f)));
                 }
-                else
+                else // SprayMode.Forward => PROJECTILE (throw then arc)
                 {
-                    velOver.enabled = false; // Forward mode can use StartSpeed with nozzle rotation if you switch
+                    // 1) no start speed/gravity in Main
+                    main.startSpeed      = 0f;
+                    main.gravityModifier = 0f;
+
+                    // 2) horizontal initial velocity ONLY, along nozzle.right (flip side if needed)
+                    float side = projectileToLeft ? -1f : 1f;
+                    Vector2 dir = ((Vector2)nozzle.right * side).normalized;
+
+                    Vector2 v0 = new Vector2(dir.x * Mathf.Max(0.01f, launchSpeed), 0f); // Y=0!
+
+                    velOver.enabled = true;
+                    velOver.space   = ParticleSystemSimulationSpace.World;
+                    // flat (constant) curves = constant initial velocity
+                    velOver.x = new ParticleSystem.MinMaxCurve(1f,
+                        new AnimationCurve(new Keyframe(0f, v0.x), new Keyframe(1f, v0.x)));
+                    velOver.y = new ParticleSystem.MinMaxCurve(1f,
+                        new AnimationCurve(new Keyframe(0f, 0f),    new Keyframe(1f, 0f)));
+                    velOver.z = new ParticleSystem.MinMaxCurve(1f,
+                        new AnimationCurve(new Keyframe(0f, 0f),    new Keyframe(1f, 0f)));
+
+                    // 3) gravity as constant downward acceleration
+                    forceOver.enabled = true;
+                    forceOver.space   = ParticleSystemSimulationSpace.World;
+                    forceOver.x       = new ParticleSystem.MinMaxCurve(0f);
+                    forceOver.y       = new ParticleSystem.MinMaxCurve(-Mathf.Abs(gravityAccel));
+                    forceOver.z       = new ParticleSystem.MinMaxCurve(0f);
                 }
 
-                // Idle (no new emission until movement)
+                // idle until movement
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
         }
     }
+
+
 
 
 
@@ -295,30 +316,49 @@ public class SprinklerInteractive : MonoBehaviour
     }
 
     // ---------- Spray ----------
-    void HandleSpray(bool on)
+   void HandleSpray(bool on)
     {
+        // ParticleSystem path: manual single-particle emission
         if (ps)
         {
-        // Toggle emission instead of relying on isPlaying
-            var emission = ps.emission;
+            if (!singleDrops)
+            {
+                // fallback: simple on/off stream (your old behavior)
+                var emission = ps.emission;
+                if (on)
+                {
+                    if (!emission.enabled) emission.enabled = true;
+                    if (!ps.isEmitting) ps.Play(true);
+                }
+                else
+                {
+                    if (emission.enabled) emission.enabled = false;
+                    emitBucketPS = 0f;
+                }
+                return;
+            }
+
+            // --- singleDrops == true ---
+            // keep the system playing (so it can accept Emit calls), but with emission module OFF
+            if (!ps.isPlaying) ps.Play(true);
 
             if (on)
             {
-                if (!emission.enabled) emission.enabled = true;
-
-            // If PS is not emitting (was previously stopped), force a Play()
-                if (!ps.isEmitting) ps.Play(true);
+                emitBucketPS += Time.deltaTime * Mathf.Max(0.01f, dropsPerSecondPS);
+                while (emitBucketPS >= 1f)
+                {
+                    emitBucketPS -= 1f;
+                    ps.Emit(1); // <-- exactly one rectangle
+                }
             }
             else
             {
-            // Stop spawning new particles, let existing ones die naturally
-                if (emission.enabled) emission.enabled = false;
-            // Don't call StopEmitting here; it confuses restart logic (isPlaying stays true)
+                emitBucketPS = 0f;
             }
             return;
         }
 
-    // ---------- Rigidbody2D path (unchanged) ----------
+        // Rigidbody2D path (unchanged)
         if (!on) { dropTimer = 0f; return; }
 
         dropTimer += Time.deltaTime * dropsPerSecond;
@@ -326,10 +366,17 @@ public class SprinklerInteractive : MonoBehaviour
         {
             dropTimer -= 1f;
 
-            Vector2 dir = (mode == SprayMode.VerticalDown) ? Vector2.down :
-                        (nozzle ? (Vector2)nozzle.right : Vector2.right);
-            if (mode != SprayMode.VerticalDown && spread != 0f)
-                dir = (Vector2)(Quaternion.Euler(0, 0, Random.Range(-spread, spread)) * dir);
+            Vector2 dir;
+            if (mode == SprayMode.VerticalDown)
+            {
+                dir = Vector2.down;
+            }
+            else
+            {
+                dir = nozzle ? (Vector2)nozzle.right : Vector2.right;
+                if (spread != 0f)
+                    dir = Quaternion.Euler(0, 0, Random.Range(-spread, spread)) * dir;
+            }
 
             var drop = Instantiate(dropletsPrefab, nozzle.position, Quaternion.identity);
             drop.transform.localScale *= dropletScale;
@@ -347,5 +394,6 @@ public class SprinklerInteractive : MonoBehaviour
             if (dropLifetime > 0f) Destroy(drop, dropLifetime);
         }
     }
+
 
 }
