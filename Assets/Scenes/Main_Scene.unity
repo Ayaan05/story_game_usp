@@ -1486,7 +1486,7 @@ MonoBehaviour:
   tiltAlwaysForward: 1
   nozzle: {fileID: 2067852766}
   dropletsPrefab: {fileID: 827313256}
-  mode: 1
+  mode: 0
   spraySpeedThreshold: 0.05
   dropsPerSecond: 13
   dropletSpeed: 6
@@ -1500,6 +1500,11 @@ MonoBehaviour:
   clampMin: {x: -9, y: -2}
   clampMax: {x: 9, y: 2}
   flipNozzleKick: 1
+  launchSpeed: 8
+  gravityAccel: 7.5
+  projectileToLeft: 1
+  singleDrops: 1
+  dropsPerSecondPS: 6
 --- !u!61 &1007484920
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2985,11 +2990,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: TriggerModule.primitives.Array.size
