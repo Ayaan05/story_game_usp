@@ -306,6 +306,7 @@ GameObject:
   - component: {fileID: 260257177}
   - component: {fileID: 260257179}
   - component: {fileID: 260257178}
+  - component: {fileID: 260257180}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -448,7 +449,7 @@ MonoBehaviour:
   foodPrefab: {fileID: 9059753268149791975, guid: a5a548c83e90f4fc5bb1271d68f7661e, type: 3}
   spawnOffset: {x: 0, y: 0, z: 0}
   pourTiltThresholdDeg: 100
-  bowlAreaHalfExtents: {x: 0.8, y: 0.4}
+  bowlAreaHalfExtents: {x: 1.5, y: 1}
   oneShot: 1
   disableBoxAfterPour: 0
   fadePrefabs:
@@ -497,6 +498,26 @@ MonoBehaviour:
   tiltDamping: 20
   returnPosSpeed: 6
   returnRotSpeed: 10
+--- !u!114 &260257180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260257173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ffd7f29cc95a4af6b5ca2f6d79fc55c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ContinuousPourInteractive
+  foodAnchor: {fileID: 685252336}
+  continuousPourPrefab: {fileID: 9080709091962856353, guid: ac706c153e3854f57a52c0d5a3049e53, type: 3}
+  spawnInterval: 0.15
+  continuousPourOffset: {x: 0, y: -1.8, z: 0}
+  minRandomOffsetX: -0.75
+  maxRandomOffsetX: 0.75
+  pourTiltThresholdDeg: 100
+  bowlAreaHalfExtents: {x: 1.5, y: 1}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
