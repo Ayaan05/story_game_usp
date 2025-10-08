@@ -1487,7 +1487,7 @@ MonoBehaviour:
   nozzle: {fileID: 2067852766}
   dropletsPrefab: {fileID: 827313256}
   mode: 1
-  spraySpeedThreshold: 0.25
+  spraySpeedThreshold: 0.05
   dropsPerSecond: 13
   dropletSpeed: 6
   dropLifetime: 2.5
@@ -1499,6 +1499,7 @@ MonoBehaviour:
   safeZ: 0
   clampMin: {x: -9, y: -2}
   clampMax: {x: 9, y: 2}
+  flipNozzleKick: 1
 --- !u!61 &1007484920
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2951,6 +2952,30 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.x.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.scalar
+      value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.z.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.x.minMaxState
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.minMaxState
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.z.minMaxState
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: InitialModule.maxNumParticles
       value: 5000
       objectReference: {fileID: 0}
@@ -2974,6 +2999,26 @@ PrefabInstance:
       propertyPath: 'TriggerModule.primitives.Array.data[0]'
       value: 
       objectReference: {fileID: 2111644602}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.maxCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.maxCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.x.maxCurve.m_Curve.Array.data[0].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.maxCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: VelocityModule.y.maxCurve.m_Curve.Array.data[1].value
+      value: -1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

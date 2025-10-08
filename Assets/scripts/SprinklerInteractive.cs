@@ -44,6 +44,9 @@ public class SprinklerInteractive : MonoBehaviour
 
     [SerializeField] Vector2 clampMin = new Vector2(-9f, -2f);
     [SerializeField] Vector2 clampMax = new Vector2( 9f,  2f);
+    [Header("Spray FX Tuning")]
+    [SerializeField] bool flipNozzleKick = false;   // tick in Inspector if the spit goes backward
+
 
     bool dragging;
     Vector3 grabOffset;
@@ -55,12 +58,18 @@ public class SprinklerInteractive : MonoBehaviour
 
     void OnEnable()
     {
-        sr  = GetComponent<SpriteRenderer>();
+        sr = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
 
-        var p = transform.position; p.z = safeZ; transform.position = p;
+        var p = transform.position;
+        p.z = safeZ;
+        transform.position = p;
+
         targetPos = ClampToBounds(transform.position);
-        lastPos   = transform.position;
+        lastPos = transform.position;
+
+        if (ps != null && ps.gameObject != null)
+            Destroy(ps.gameObject);
 
         if (dropletsPrefab && nozzle)
         {
@@ -74,6 +83,7 @@ public class SprinklerInteractive : MonoBehaviour
 
                 ps = go.GetComponentInChildren<ParticleSystem>(true);
 
+                // ---- Main ----
                 var main = ps.main;
                 main.loop = true;
                 main.playOnAwake = false;
@@ -85,26 +95,81 @@ public class SprinklerInteractive : MonoBehaviour
                 main.ringBufferMode = ParticleSystemRingBufferMode.PauseUntilReplaced;
     #endif
                 main.startSizeMultiplier *= Mathf.Max(0.01f, particleSizeMult);
+                main.startSpeed = 0f;          // drive via Velocity over Lifetime
+                main.gravityModifier = 0f;     // keep speeds constant
 
+                // ---- Emission (idle by default; toggled in HandleSpray) ----
                 var emission = ps.emission;
-                emission.enabled = false; // start disabled; we enable when moving
+                emission.enabled = false;
                 if (emission.rateOverTime.constant <= 0f) emission.rateOverTime = 20f;
                 emission.rateOverTimeMultiplier = Mathf.Max(0.01f, particleRate);
 
+                // No inherit from hand motion
+                var iv = ps.inheritVelocity;
+                iv.enabled = false;
+
+                // ---- Velocity over Lifetime ----
+                var velOver = ps.velocityOverLifetime;
+
                 if (mode == SprayMode.VerticalDown)
                 {
-                    var velOver = ps.velocityOverLifetime;
                     velOver.enabled = true;
-                    velOver.x = new ParticleSystem.MinMaxCurve(0f);
-                    velOver.y = new ParticleSystem.MinMaxCurve(-Mathf.Abs(dropletSpeed));
-                    velOver.z = new ParticleSystem.MinMaxCurve(0f);
+                    velOver.space = ParticleSystemSimulationSpace.World;  // global X/Y/Z
+
+                    // -------- HORIZONTAL SPIT (stronger + held longer) --------
+                    // Determine left/right by nozzle facing; flip via toggle if needed
+                    float xSign = (Vector2.Dot(nozzle.right, Vector2.right) >= 0f) ? 1f : -1f;
+                    if (flipNozzleKick) xSign *= -1f;
+
+                    // TUNABLES: raise for even more “spit”
+                    float xKickAbs  = 5.5f;   // initial horizontal speed
+                    float xHoldTime = 0.28f;  // time it stays flat at full kick
+                    float xFadeTime = 0.75f;  // time by which it has fully faded to 0
+
+                    var xCurve = new AnimationCurve(
+                        new Keyframe(0.00f,  xKickAbs * xSign),
+                        new Keyframe(xHoldTime, xKickAbs * xSign),
+                        new Keyframe(xFadeTime, 0f),
+                        new Keyframe(1.00f, 0f)
+                    );
+                    velOver.x = new ParticleSystem.MinMaxCurve(1f, xCurve);
+
+                    // -------- VERTICAL DROP (delayed ramp so it stays horizontal) --------
+                    // Start almost flat, then ramp to full fall later.
+                    float fullFall  = -Mathf.Abs(dropletSpeed); // e.g., -6
+                    float startFall = -0.02f;                   // ~0 keeps it horizontal at first
+                    float fallRampT = 0.55f;                    // later ramp => “turns vertical” later
+
+                    var yCurve = new AnimationCurve(
+                        new Keyframe(0.00f, startFall),
+                        new Keyframe(fallRampT, fullFall),
+                        new Keyframe(1.00f, fullFall)
+                    );
+                    velOver.y = new ParticleSystem.MinMaxCurve(1f, yCurve);
+
+                    // Z stays zero (flat)
+                    var zCurve = new AnimationCurve(
+                        new Keyframe(0f, 0f),
+                        new Keyframe(1f, 0f)
+                    );
+                    velOver.z = new ParticleSystem.MinMaxCurve(1f, zCurve);
+                }
+                else
+                {
+                    velOver.enabled = false; // Forward mode can use StartSpeed with nozzle rotation if you switch
                 }
 
-            // Ensure a clean, non-emitting idle state (don’t Clear)
+                // Idle (no new emission until movement)
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
         }
     }
+
+
+
+
+
+
 
 
     void Update()
