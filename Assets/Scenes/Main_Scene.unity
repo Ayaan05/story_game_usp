@@ -1493,18 +1493,20 @@ MonoBehaviour:
   dropLifetime: 2.5
   spread: 12
   grassKillLine: {fileID: 2111644602}
-  dropletScale: 1.6
+  dropletScale: 1
   particleSizeMult: 1.6
-  particleRate: 14
+  particleRate: 18
   safeZ: 0
   clampMin: {x: -9, y: -2}
   clampMax: {x: 9, y: 2}
   flipNozzleKick: 1
-  launchSpeed: 8
-  gravityAccel: 7.5
+  launchSpeed: 8.5
+  gravityAccel: 11.4
   projectileToLeft: 1
   singleDrops: 1
-  dropsPerSecondPS: 6
+  dropsPerSecondPS: 4.2
+  nozzleWidth: 1
+  nozzleThickness: 0.1
 --- !u!61 &1007484920
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2648,7 +2650,7 @@ Transform:
   m_GameObject: {fileID: 2111644601}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.2, y: 70.8, z: 0}
+  m_LocalPosition: {x: 8.2, y: 73.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2798,12 +2800,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 897079885658637977, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: m_RenderMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 897079885658637977, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: m_LengthScale
-      value: 3
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 897079885658637977, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: m_SortingOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 897079885658637977, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1676666583179642945, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: m_Name
@@ -2854,6 +2864,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ShapeModule.type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: TrailModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ShapeModule.m_Scale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: TriggerModule.enabled
       value: 1
       objectReference: {fileID: 0}
@@ -2868,6 +2894,18 @@ PrefabInstance:
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: VelocityModule.z.scalar
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ShapeModule.radius.value
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: TrailModule.lifetime.scalar
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: VelocityModule.x.minMaxState
@@ -2887,7 +2925,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.5
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: InitialModule.startSpeed.scalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
+      propertyPath: TrailModule.widthOverTrail.scalar
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 4276697815027828714, guid: 7539077b436b5411e844263f120710db, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar

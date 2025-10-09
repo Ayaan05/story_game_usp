@@ -57,6 +57,10 @@ public class SprinklerInteractive : MonoBehaviour
     [SerializeField] bool singleDrops = true;        // turn ON to emit one-at-a-time
     [SerializeField] float dropsPerSecondPS = 6f;    // spacing between single drops
     float emitBucketPS;
+    [Header("Nozzle width")]
+    [SerializeField] float nozzleWidth = 0.6f;     // how wide the mouth is
+    [SerializeField] float nozzleThickness = 0.05f; // how tall the slit is
+
 
 
 
@@ -97,7 +101,7 @@ public class SprinklerInteractive : MonoBehaviour
                 var main = ps.main;
                 main.loop            = true;
                 main.playOnAwake     = false;
-                main.simulationSpace = ParticleSystemSimulationSpace.World; // critical
+                main.simulationSpace = ParticleSystemSimulationSpace.World;
                 main.scalingMode     = ParticleSystemScalingMode.Shape;
                 main.stopAction      = ParticleSystemStopAction.None;
                 main.maxParticles    = Mathf.Max(main.maxParticles, 5000);
@@ -106,13 +110,35 @@ public class SprinklerInteractive : MonoBehaviour
     #endif
                 main.startSizeMultiplier *= Mathf.Max(0.01f, particleSizeMult);
 
-                // start idle; HandleSpray() toggles emission
+                // ---- Emission: off (we emit manually / HandleSpray controls it)
                 var emission = ps.emission;
-                emission.enabled = false;          // MUST be off (we emit manually)
-                emission.rateOverTime = 0f;        // no continuous stream
-                emission.rateOverDistance = 0f;    // no distance-based emission
+                emission.enabled = false;
+                emission.rateOverTime = 0f;
+                emission.rateOverDistance = 0f;
 
+                // ---- No inherit from emitter motion
                 var iv = ps.inheritVelocity; iv.enabled = false;
+
+                // ---- Shape: wide slit (Box); version-safe (no emitFrom)
+                var shape = ps.shape;
+                shape.enabled   = true;
+                shape.shapeType = ParticleSystemShapeType.Box;
+                shape.position  = Vector3.zero;
+                shape.randomDirectionAmount = 0f;
+                shape.randomPositionAmount  = 0f;
+                shape.boxThickness = Vector3.zero; // full volume, not shell
+
+                // Width across the mouth; thin slit
+                if (mode == SprayMode.VerticalDown)
+                {
+                    // Throw is vertical; width should be local X, thin on Y
+                    shape.scale = new Vector3(nozzleWidth, nozzleThickness, 0f);
+                }
+                else
+                {
+                    // Projectile/Forward: throw is along ±X; width across it → local Y
+                    shape.scale = new Vector3(nozzleThickness, nozzleWidth, 0f);
+                }
 
                 var velOver   = ps.velocityOverLifetime; velOver.enabled = false;
                 var forceOver = ps.forceOverLifetime;   forceOver.enabled = false;
@@ -120,14 +146,12 @@ public class SprinklerInteractive : MonoBehaviour
                 // -------------------- MODE SETUP --------------------
                 if (mode == SprayMode.VerticalDown)
                 {
-                    // your non-projectile stream
                     main.startSpeed      = 0f;
                     main.gravityModifier = 0f;
 
                     velOver.enabled = true;
                     velOver.space   = ParticleSystemSimulationSpace.World;
 
-                    // tiny spit then steady fall (keep if you still want this mode)
                     float xSign = (Vector2.Dot(nozzle.right, Vector2.right) >= 0f) ? 1f : -1f;
                     var xCurve = new AnimationCurve(
                         new Keyframe(0f, 5.5f * xSign),
@@ -148,37 +172,31 @@ public class SprinklerInteractive : MonoBehaviour
                     velOver.z = new ParticleSystem.MinMaxCurve(1f,
                         new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(1f, 0f)));
                 }
-                else // SprayMode.Forward => PROJECTILE (throw then arc)
+                else // SprayMode.Forward => projectile (throw then arc)
                 {
-                    // 1) no start speed/gravity in Main
                     main.startSpeed      = 0f;
                     main.gravityModifier = 0f;
 
-                    // 2) horizontal initial velocity ONLY, along nozzle.right (flip side if needed)
                     float side = projectileToLeft ? -1f : 1f;
                     Vector2 dir = ((Vector2)nozzle.right * side).normalized;
 
-                    Vector2 v0 = new Vector2(dir.x * Mathf.Max(0.01f, launchSpeed), 0f); // Y=0!
-
+                    Vector2 v0 = new Vector2(dir.x * Mathf.Max(0.01f, launchSpeed), 0f); // Y=0
                     velOver.enabled = true;
                     velOver.space   = ParticleSystemSimulationSpace.World;
-                    // flat (constant) curves = constant initial velocity
                     velOver.x = new ParticleSystem.MinMaxCurve(1f,
                         new AnimationCurve(new Keyframe(0f, v0.x), new Keyframe(1f, v0.x)));
                     velOver.y = new ParticleSystem.MinMaxCurve(1f,
-                        new AnimationCurve(new Keyframe(0f, 0f),    new Keyframe(1f, 0f)));
+                        new AnimationCurve(new Keyframe(0f, 0f),   new Keyframe(1f, 0f)));
                     velOver.z = new ParticleSystem.MinMaxCurve(1f,
-                        new AnimationCurve(new Keyframe(0f, 0f),    new Keyframe(1f, 0f)));
+                        new AnimationCurve(new Keyframe(0f, 0f),   new Keyframe(1f, 0f)));
 
-                    // 3) gravity as constant downward acceleration
                     forceOver.enabled = true;
                     forceOver.space   = ParticleSystemSimulationSpace.World;
-                    forceOver.x       = new ParticleSystem.MinMaxCurve(0f);
-                    forceOver.y       = new ParticleSystem.MinMaxCurve(-Mathf.Abs(gravityAccel));
-                    forceOver.z       = new ParticleSystem.MinMaxCurve(0f);
+                    forceOver.x = new ParticleSystem.MinMaxCurve(0f);
+                    forceOver.y = new ParticleSystem.MinMaxCurve(-Mathf.Abs(gravityAccel));
+                    forceOver.z = new ParticleSystem.MinMaxCurve(0f);
                 }
 
-                // idle until movement
                 ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
         }
