@@ -35,6 +35,16 @@ public class EndSceneController : MonoBehaviour
     [Tooltip("Seconds for bye characters fade.")]
     [Range(0.05f, 2f)] public float firstTapFadeDuration = 0.6f;
 
+    [Header("Hand Prompt")]
+    [Tooltip("Prefab shown after the window closes.")]
+    public GameObject handPrefab;
+    [Tooltip("Optional parent for the spawned hand.")]
+    public Transform handParentOverride;
+    [Tooltip("World-space offset from the window position.")]
+    public Vector3 handOffset = new Vector3(0.5f, 0f, 0f);
+    [Tooltip("Seconds before the spawned hand is removed.")]
+    public float handLifetime = 5f;
+
     [Header("Debug")]
     public bool debugLogs = false;
 
@@ -44,6 +54,8 @@ public class EndSceneController : MonoBehaviour
     private Sprite originalDoghouseSprite;
     private readonly Dictionary<GameObject, Coroutine> firstTapFadeCoroutines = new Dictionary<GameObject, Coroutine>();
     private readonly Dictionary<Object, float> originalAlphaLookup = new Dictionary<Object, float>();
+    private GameObject spawnedHandInstance;
+    private Coroutine handDespawnRoutine;
 
     void Awake()
     {
@@ -61,6 +73,7 @@ public class EndSceneController : MonoBehaviour
         tapStage = 0;
         sequenceComplete = false;
         SetFirstTapObjectsActive(false, true);
+        CleanupHandPrompt();
         if (windowRenderer != null)
         {
             windowRenderer.sprite = originalWindowSprite;
@@ -82,6 +95,7 @@ public class EndSceneController : MonoBehaviour
                 StopCoroutine(routine);
         }
         firstTapFadeCoroutines.Clear();
+        CleanupHandPrompt();
     }
 
     void Update()
@@ -225,6 +239,7 @@ public class EndSceneController : MonoBehaviour
 
         sequenceComplete = true;
         ConfigureWindowReturn(true);
+        TriggerHandPrompt();
     }
 
     IEnumerator FadeGameObject(GameObject go, bool fadeIn, float duration)
@@ -305,6 +320,66 @@ public class EndSceneController : MonoBehaviour
             StopCoroutine(routine);
 
         firstTapFadeCoroutines.Remove(go);
+    }
+
+    void TriggerHandPrompt()
+    {
+        if (handPrefab == null)
+            return;
+
+        CleanupHandPrompt();
+
+        Vector3 basePosition = transform.position;
+        Quaternion rotation = Quaternion.identity;
+
+        if (windowRenderer != null)
+        {
+            basePosition = windowRenderer.transform.position;
+            rotation = windowRenderer.transform.rotation;
+        }
+
+        Vector3 spawnPosition = basePosition + handOffset;
+        spawnedHandInstance = Instantiate(handPrefab, spawnPosition, rotation);
+
+        Transform parent = handParentOverride != null ? handParentOverride : (windowRenderer != null ? windowRenderer.transform.parent : null);
+        if (parent != null && spawnedHandInstance != null)
+        {
+            spawnedHandInstance.transform.SetParent(parent, true);
+        }
+
+        float lifetime = Mathf.Max(0f, handLifetime);
+        if (lifetime > 0f)
+        {
+            handDespawnRoutine = StartCoroutine(DespawnHandAfterDelay(spawnedHandInstance, lifetime));
+        }
+    }
+
+    void CleanupHandPrompt()
+    {
+        if (handDespawnRoutine != null)
+        {
+            StopCoroutine(handDespawnRoutine);
+            handDespawnRoutine = null;
+        }
+
+        if (spawnedHandInstance != null)
+        {
+            Destroy(spawnedHandInstance);
+            spawnedHandInstance = null;
+        }
+    }
+
+    IEnumerator DespawnHandAfterDelay(GameObject handInstance, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (handInstance != null)
+            Destroy(handInstance);
+
+        if (spawnedHandInstance == handInstance)
+            spawnedHandInstance = null;
+
+        handDespawnRoutine = null;
     }
 
     void UpdateObjectAlpha(GameObject go, float normalizedAlpha)
