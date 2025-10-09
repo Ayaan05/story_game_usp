@@ -27,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 3435543015242761115}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20.2599, y: 99.9747, z: 0}
-  m_LocalScale: {x: 2.4343004, y: 1.7625957, z: 1}
+  m_LocalPosition: {x: 19.99, y: 94.83, z: 0}
+  m_LocalScale: {x: 0.951661, y: 0.9110152, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -80,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 8403215288983880825, guid: 1d5af2e02f1df4fd1999480a613a19a7, type: 3}
+  m_Sprite: {fileID: 2048068885200194369, guid: 92a8d8bd4c314456c8857c1852d4ca12, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 25.045135, y: 22.97}
+  m_Size: {x: 4.83, y: 4.2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -105,5 +105,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HandBounce
   amplitude: 0.2
   frequency: 1
-  lifetimeSeconds: 4
+  lifetimeSeconds: 3
   fadeTime: 0.2
