@@ -307,7 +307,6 @@ GameObject:
   - component: {fileID: 260257179}
   - component: {fileID: 260257178}
   - component: {fileID: 260257180}
-  - component: {fileID: 260257181}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -523,33 +522,6 @@ MonoBehaviour:
   maxRandomOffsetX: 0.75
   pourTiltThresholdDeg: 100
   bowlAreaHalfExtents: {x: 1.5, y: 1}
---- !u!50 &260257181
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 260257173}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -931,7 +903,6 @@ GameObject:
   - component: {fileID: 1522676858}
   - component: {fileID: 1522676857}
   - component: {fileID: 1522676859}
-  - component: {fileID: 1522676860}
   m_Layer: 0
   m_Name: Bowl
   m_TagString: Untagged
@@ -1125,33 +1096,6 @@ PolygonCollider2D:
       - {x: 15.138281, y: -10.681147}
       - {x: 15.201771, y: -10.617657}
   m_UseDelaunayMesh: 0
---- !u!50 &1522676860
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1522676856}
-  m_BodyType: 2
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 0
 --- !u!1 &1597880678
 GameObject:
   m_ObjectHideFlags: 0
