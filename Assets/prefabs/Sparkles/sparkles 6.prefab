@@ -432,7 +432,7 @@ MonoBehaviour:
   alphaMin: 0.05
   alphaMax: 1
   shimmerHz: 1.3
-  scalePulse: 0.05
+  scalePulse: 0.3
   pulseHz: 1
   driftRadius: 0.03
   driftHz: 0.4
