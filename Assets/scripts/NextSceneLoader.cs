@@ -15,8 +15,14 @@ public class SparkleNextScene : MonoBehaviour
     [Header("Scene Navigation")]
     [SerializeField] private string nextSceneName = "NextScene";
 
+    [Header("Activation")]
+    [SerializeField] private bool allowTapAnywhere = true; // allow tapping anywhere once sparkle is shown
+
     [Header("Interactivity")]
     [SerializeField] private bool hideAtStart = true;      // hide sparkle until ShowSparkle() is called
+
+    private bool globalTapArmed = false;
+    private bool sceneTriggered = false;
 
     void Awake()
     {
@@ -58,6 +64,28 @@ public class SparkleNextScene : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (!globalTapArmed) return;
+
+#if ENABLE_INPUT_SYSTEM
+        bool tapped = false;
+        if (UnityEngine.InputSystem.Mouse.current != null &&
+            UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            tapped = true;
+        else if (UnityEngine.InputSystem.Touchscreen.current != null &&
+                 UnityEngine.InputSystem.Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            tapped = true;
+        if (!tapped) return;
+#else
+        if (!Input.GetMouseButtonDown(0) &&
+            !(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+            return;
+#endif
+
+        OnSparkleClicked();
+    }
+
     // Public method: call this when you want to reveal and place the sparkle
     public void ShowSparkle()
     {
@@ -93,6 +121,8 @@ public class SparkleNextScene : MonoBehaviour
 
         sparkleButton.gameObject.SetActive(true);
         sparkleButton.interactable = true;
+        globalTapArmed = allowTapAnywhere;
+        sceneTriggered = false;
     }
 
     // Optional: hide again if needed
@@ -101,16 +131,33 @@ public class SparkleNextScene : MonoBehaviour
         if (!sparkleButton) return;
         sparkleButton.interactable = false;
         sparkleButton.gameObject.SetActive(false);
+        globalTapArmed = false;
+        sceneTriggered = false;
     }
 
     private void OnSparkleClicked()
     {
+        if (sceneTriggered) return;
+
+        if (!globalTapArmed && sparkleButton && !sparkleButton.gameObject.activeInHierarchy)
+            return;
+
         if (string.IsNullOrWhiteSpace(nextSceneName))
         {
             Debug.LogWarning("SparkleNextScene: nextSceneName is empty; not loading.");
             return;
         }
-        // Load the next scene
-        SceneManager.LoadScene(nextSceneName);
+        sceneTriggered = true;
+        // Prefer fade controller when available
+        if (SceneFadeController.Instance)
+        {
+            SceneFadeController.Instance.FadeOutAndLoad(nextSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(nextSceneName);
+        }
+
+        globalTapArmed = false;
     }
 }

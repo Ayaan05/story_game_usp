@@ -122,7 +122,11 @@ public class button : MonoBehaviour
             }
         }
 
-        SceneManager.LoadScene(sceneToLoad);
+        var controller = SceneFadeController.Instance;
+        if (controller != null)
+            controller.FadeOutAndLoad(sceneToLoad);
+        else
+            SceneManager.LoadScene(sceneToLoad);
     }
 
     MiniGame GuessMiniGameFromScene(string sceneName)

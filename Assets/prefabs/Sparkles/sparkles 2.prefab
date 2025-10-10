@@ -394,7 +394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayAgainButton
   autoWire: 1
   replaceExistingListeners: 1
-  reloadDelay: 0.12
+  reloadDelay: 0
   reloadMode: 1
   sceneName: end_scene
   sceneBuildIndex: 0
@@ -417,6 +417,21 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 7e2966ce082ab4066a4f493a64beb4a0, type: 3}
   volume: 1
   maxSeconds: 0
+--- !u!114 &4241409870330039732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5065185621050550251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f6c4063a5294201acc5ec8cad8a9f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 0}
+  activationDelay: 0
+  requirePointerRelease: 0
 --- !u!114 &1809156436546399004
 MonoBehaviour:
   m_ObjectHideFlags: 0

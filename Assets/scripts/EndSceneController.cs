@@ -63,6 +63,8 @@ public class EndSceneController : MonoBehaviour
             originalWindowSprite = windowRenderer.sprite;
         if (doghouseRenderer != null)
             originalDoghouseSprite = doghouseRenderer.sprite;
+        if (sceneFadeController == null)
+            sceneFadeController = SceneFadeController.Instance;
 
         SetFirstTapObjectsActive(false, true);
         ConfigureWindowReturn(false);
@@ -204,10 +206,15 @@ public class EndSceneController : MonoBehaviour
             GameManager.Instance.ResetProgress();
 
         string targetScene = GameManager.MAIN_SCENE;
-        if (sceneFadeController != null)
-            sceneFadeController.FadeOutAndLoad(targetScene);
+        SceneFadeController controller = sceneFadeController != null ? sceneFadeController : SceneFadeController.Instance;
+        if (controller != null)
+        {
+            controller.FadeOutAndLoad(targetScene);
+        }
         else
+        {
             SceneManager.LoadScene(targetScene);
+        }
     }
 
     bool ShouldProcessPointer(int pointerId)

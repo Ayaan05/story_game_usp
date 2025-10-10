@@ -334,7 +334,11 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
                 Debug.LogError("PlaySfxThenLoad: scene not found in Build Settings: " + sceneName);
             }
 
-            SceneManager.LoadScene(sceneName);
+            var controller = SceneFadeController.Instance;
+            if (controller != null)
+                controller.FadeOutAndLoad(sceneName);
+            else
+                SceneManager.LoadScene(sceneName);
         }
     }
 

@@ -62,12 +62,20 @@ public class Tap : MonoBehaviour
                         {
                             GameManager.Instance.ResetProgress();
                         }
-                        SceneManager.LoadScene(target);
+                        var controller = SceneFadeController.Instance;
+                        if (controller != null)
+                            controller.FadeOutAndLoad(target);
+                        else
+                            SceneManager.LoadScene(target);
                     }
                     else
                     {
                         var scene = SceneManager.GetActiveScene();
-                        SceneManager.LoadScene(scene.buildIndex);
+                        var controller = SceneFadeController.Instance;
+                        if (controller != null)
+                            controller.FadeOutAndLoad(scene.name);
+                        else
+                            SceneManager.LoadScene(scene.buildIndex);
                     }
                 });
             }
@@ -225,7 +233,11 @@ public class Tap : MonoBehaviour
     private void RestartScene()
     {
         Scene current = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(current.buildIndex);
+        var controller = SceneFadeController.Instance;
+        if (controller != null)
+            controller.FadeOutAndLoad(current.name);
+        else
+            SceneManager.LoadScene(current.buildIndex);
     }
 
     private void SetActiveSafe(GameObject go, bool state)

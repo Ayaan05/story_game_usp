@@ -1,14 +1,15 @@
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.IO;
 
 public class PlayAgainButton : MonoBehaviour
 {
     [Header("Auto-wire")]
     public bool autoWire = true;
     public bool replaceExistingListeners = true;
+
     [Header("Behaviour")]
     [Tooltip("Delay before reloading the scene (seconds). Useful to let click SFX play.")]
     public float reloadDelay = 0.12f;
@@ -19,6 +20,7 @@ public class PlayAgainButton : MonoBehaviour
     public string sceneName = "";
     [Tooltip("If ReloadMode is BuildIndex, use this build index.")]
     public int sceneBuildIndex = 0;
+
     [Header("Debug")]
     public bool debugLogs = true;
 
@@ -30,12 +32,14 @@ public class PlayAgainButton : MonoBehaviour
     public bool resetGameManager = false;
 
     private Button wiredButton;
+    private bool reloadTriggered = false;
 
     void OnEnable()
     {
+        reloadTriggered = false;
+
         if (!autoWire) return;
 
-        // Find a Button on this GameObject or children (works even if the object was inactive at Start)
         wiredButton = GetComponent<Button>();
         if (wiredButton == null)
             wiredButton = GetComponentInChildren<Button>(true);
@@ -61,24 +65,39 @@ public class PlayAgainButton : MonoBehaviour
             wiredButton.onClick.RemoveListener(OnClicked);
             wiredButton = null;
         }
+        reloadTriggered = false;
     }
 
-    private void OnClicked()
+    void OnClicked()
     {
-        if (debugLogs) Debug.Log("PlayAgainButton: clicked - reloading scene in " + reloadDelay + "s");
-        StartCoroutine(ReloadAfterDelay(reloadDelay));
+        if (debugLogs) Debug.Log("PlayAgainButton: clicked");
+        BeginReload(reloadDelay);
+    }
+
+    public void TriggerReloadExternal(bool skipDelay = true)
+    {
+        if (debugLogs) Debug.Log("PlayAgainButton: external trigger");
+        BeginReload(skipDelay ? 0f : reloadDelay);
+    }
+
+    void BeginReload(float delay)
+    {
+        if (reloadTriggered)
+            return;
+
+        reloadTriggered = true;
+        StartCoroutine(ReloadAfterDelay(Mathf.Max(0f, delay)));
     }
 
     IEnumerator ReloadAfterDelay(float delay)
     {
-        yield return new WaitForSecondsRealtime(delay);
+        if (delay > 0f)
+            yield return new WaitForSecondsRealtime(delay);
 
         var gm = GameManager.Instance;
 
         if (resetGameManager && gm != null)
-        {
             gm.ResetProgress();
-        }
 
         if (notifyGameManager)
         {
@@ -134,10 +153,10 @@ public class PlayAgainButton : MonoBehaviour
                 {
                     if (SceneFadeController.Instance != null)
                     {
-                        string name = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
-                        if (!string.IsNullOrEmpty(name))
+                        string path = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
+                        if (!string.IsNullOrEmpty(path))
                         {
-                            string sceneNameOnly = System.IO.Path.GetFileNameWithoutExtension(name);
+                            string sceneNameOnly = Path.GetFileNameWithoutExtension(path);
                             SceneFadeController.Instance.FadeOutAndLoad(sceneNameOnly);
                         }
                         else
@@ -154,8 +173,7 @@ public class PlayAgainButton : MonoBehaviour
         }
     }
 
-    // Diagnostic helper: call from Console or inspector to check why the button may not be clickable
-    [ContextMenu("Check Button Clickable")] 
+    [ContextMenu("Check Button Clickable")]
     public void CheckClickable()
     {
         if (wiredButton == null)
@@ -165,7 +183,6 @@ public class PlayAgainButton : MonoBehaviour
         }
 
         Debug.Log("PlayAgainButton: wiredButton.interactable=" + wiredButton.interactable);
-        // walk up parents to find any CanvasGroup that might block
         var cg = wiredButton.GetComponentInParent<CanvasGroup>();
         if (cg != null)
         {
@@ -187,7 +204,7 @@ public class PlayAgainButton : MonoBehaviour
                 if (sceneBuildIndex >= 0 && sceneBuildIndex < SceneManager.sceneCountInBuildSettings)
                 {
                     string path = SceneUtility.GetScenePathByBuildIndex(sceneBuildIndex);
-                    string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                    string name = Path.GetFileNameWithoutExtension(path);
                     return GuessMiniGameFromSceneName(name);
                 }
                 break;
