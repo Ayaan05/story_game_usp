@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2894328b50df54929824efc1b1064332
+guid: 51b2a0bbf374d4b058daadeda45d81a6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -201629928693450735
-    second: mailbox_open_0
+      213: 2069841523586151885
+    second: MailboxClosedOng_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,23 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mailbox_open_0
+      name: MailboxClosedOng_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 150
+        y: 0
         width: 13000
-        height: 8383
+        height: 8533
       alignment: 9
-      pivot: {x: 0.843635, y: 0.03082871}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 118b32ce5aaa33df0800000000000000
-      internalID: -201629928693450735
+      spriteID: dc5b4b236ed89bc10800000000000000
+      internalID: 2069841523586151885
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f0c5e5b21c1ff464c8a20d494631e9a3
+    spriteID: e3202010f4646472c9d9ad1e5bf0cba3
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mailbox_open_0: -201629928693450735
+      MailboxClosedOng_0: 2069841523586151885
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

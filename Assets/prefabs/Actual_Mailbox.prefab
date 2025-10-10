@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 3173363938618973513}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 51.1, y: 65.6, z: 0}
-  m_LocalScale: {x: 0.7939657, y: 0.82476, z: 1}
+  m_LocalPosition: {x: 12.5, y: 99.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -81,12 +81,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 16fee2d8e82704e30b65610aab089838, type: 3}
+  m_Sprite: {fileID: 2069841523586151885, guid: 51b2a0bbf374d4b058daadeda45d81a6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 130.02667, y: 85.33}
+  m_Size: {x: 25.405209, y: 45.44}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -126,17 +126,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 4.2892857, y: 33.589184}
+  m_Offset: {x: 48.21393, y: -5.322899}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.84363496, y: 0.030828705}
+    pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 130.02667, y: 85.33}
-    newSize: {x: 130.02667, y: 85.33}
+    newSize: {x: 25.405209, y: 45.44}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 22.345116, y: 15.037682}
+  m_Size: {x: 20.713135, y: 13.050674}
   m_EdgeRadius: 0
 --- !u!114 &4512175615384911560
 MonoBehaviour:
@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b75fa613adaf4d9084de6d3e5b0e744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MailboxClickWiggle
-  closedSprite: {fileID: 21300000, guid: 16fee2d8e82704e30b65610aab089838, type: 3}
-  openSprite: {fileID: -201629928693450735, guid: 2894328b50df54929824efc1b1064332, type: 3}
+  closedSprite: {fileID: 2069841523586151885, guid: 51b2a0bbf374d4b058daadeda45d81a6, type: 3}
+  openSprite: {fileID: -6942311657111362486, guid: ece79fb07472742a69a50673397b0f8a, type: 3}
   startClosed: 1
   sfx: {fileID: 0}
   openClip: {fileID: 0}
