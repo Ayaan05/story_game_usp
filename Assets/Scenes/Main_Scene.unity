@@ -1118,7 +1118,7 @@ MonoBehaviour:
   dogBubbleOffset: {x: 20, y: 0}
   girlBubbleOffset: {x: 10, y: 1.1}
   hungryBtnOffset: {x: 15, y: 0.1}
-  stinkyBtnOffset: {x: 12, y: 13}
+  stinkyBtnOffset: {x: 86, y: -30}
   fadeTime: 0.18
   popScale: 1
   sfxSource: {fileID: 566784756}
@@ -1486,10 +1486,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1597880682}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 111.6, y: -8.8273}
-  m_SizeDelta: {x: 1550, y: 1000}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 111.600006, y: -8.827301}
+  m_SizeDelta: {x: 184, y: 232}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1147061290
 MonoBehaviour:
@@ -1596,11 +1596,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_Pivot.x
-      value: 0.12780762
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_Pivot.y
-      value: -0.17397097
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1664,11 +1664,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -299.9922
+      value: -251.60712
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -131.69928
+      value: -124.18938
       objectReference: {fileID: 0}
     - target: {fileID: 8589501397271650000, guid: 0b31397e5bd794055a1e1f5a5e84b317, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2356,27 +2356,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 137.6226
+      value: 137.62262
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 118.8113
+      value: 118.81131
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_LocalScale.x
@@ -2416,11 +2416,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -400
+      value: 283
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 100
+      value: -284
       objectReference: {fileID: 0}
     - target: {fileID: 7920570388839728630, guid: b09f9f3dbcbd94552b88f09f83e8536c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
