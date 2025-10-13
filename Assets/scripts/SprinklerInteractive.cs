@@ -9,9 +9,17 @@ public class SprinklerInteractive : MonoBehaviour
     [Header("Dragging")]
     [SerializeField] float moveLerp = 18f;
 
-    [Header("Clamp")]
-    [SerializeField] bool clampToCamera = true;
-    [SerializeField] float screenPadding = 0.2f;
+    [Header("Horizontal Clamp")]
+    [SerializeField] bool clampXToCamera = true;   // keep inside camera horizontally
+    [SerializeField] float xScreenPadding = 0.15f; // world units from screen edge
+    [SerializeField] bool clampY = false;          // set true if you also want Y limits
+    [SerializeField] Vector2 yLimits = new Vector2(-999f, 999f);
+    [Header("Screen Clamp Anchors")]
+    [SerializeField] Transform leftEdgeRef;   // e.g. NozzleTip
+    [SerializeField] Transform rightEdgeRef;  // e.g. HandleEnd
+
+
+
 
     [Header("Tilt")]
     [SerializeField] float restAngleZ = 0f;
@@ -302,36 +310,70 @@ public class SprinklerInteractive : MonoBehaviour
     }
 
     // ---------- Clamp ----------
-    Vector3 ClampToBounds(Vector3 p)
+    // World-space horizontal radii from the pivot to each sprite edge.
+    // leftRadius: distance from pivot to left edge
+    // rightRadius: distance from pivot to right edge
+    void GetHorizontalRadii(out float leftRadius, out float rightRadius)
+    {
+        leftRadius = rightRadius = 0f;
+        if (!sr || !sr.sprite) return;
+
+        // Local-space sprite bounds relative to pivot
+        var b  = sr.sprite.bounds;                 // center/size in local units
+        float sx = Mathf.Abs(transform.lossyScale.x);
+
+        // Distances from pivot to each edge (local), then scale to world
+        leftRadius  = (b.extents.x + b.center.x) * sx;  // pivot -> left
+        rightRadius = (b.extents.x - b.center.x) * sx;  // pivot -> right
+    }
+
+   Vector3 ClampToBounds(Vector3 p)
     {
         p.z = safeZ;
 
-        float minX, maxX, minY, maxY;
-        if (clampToCamera && Camera.main)
+        if (clampXToCamera && Camera.main)
         {
-            var cam = Camera.main;
+            var cam  = Camera.main;
             float vert = cam.orthographicSize;
             float horz = vert * cam.aspect;
-            Vector3 c = cam.transform.position;
+            Vector3 c  = cam.transform.position;
 
-            Vector2 half = Vector2.zero;
-            if (sr) { var e = sr.bounds.extents; half = new Vector2(e.x, e.y); }
+            float camLeft  = c.x - horz + xScreenPadding;
+            float camRight = c.x + horz - xScreenPadding;
 
-            minX = c.x - horz + screenPadding + half.x;
-            maxX = c.x + horz - screenPadding - half.x;
-            minY = c.y - vert + screenPadding + half.y;
-            maxY = c.y + vert - screenPadding - half.y;
+            // How far are we trying to move along X this frame?
+            float dx = p.x - transform.position.x;
+
+            // Predict where each anchor would be if we moved by dx.
+            // (We just offset current world position by dx; rotation/scale don’t change here.)
+            float leftPred  = leftEdgeRef  ? (leftEdgeRef.position.x  + dx) : float.NaN;
+            float rightPred = rightEdgeRef ? (rightEdgeRef.position.x + dx) : float.NaN;
+
+            // If an anchor isn't assigned, use sprite bounds for that side
+            if (!leftEdgeRef && sr)  leftPred  = sr.bounds.min.x + dx;
+            if (!rightEdgeRef && sr) rightPred = sr.bounds.max.x + dx;
+
+            // Now push p.x so both anchors remain inside the camera rect.
+            if (!float.IsNaN(leftPred) && leftPred < camLeft)
+                p.x += (camLeft - leftPred);        // shift right so nozzle tip is inside
+
+            if (!float.IsNaN(rightPred) && rightPred > camRight)
+                p.x -= (rightPred - camRight);      // shift left so handle/back is inside
         }
         else
         {
-            minX = clampMin.x; maxX = clampMax.x;
-            minY = clampMin.y; maxY = clampMax.y;
+            // Fallback: simple world-box clamp
+            p.x = Mathf.Clamp(p.x, clampMin.x, clampMax.x);
         }
 
-        p.x = Mathf.Clamp(p.x, minX, maxX);
-        p.y = Mathf.Clamp(p.y, minY, maxY);
+        // Y free (or clamp elsewhere if you want)
         return p;
     }
+
+
+
+
+
 
     // ---------- Spray ----------
    void HandleSpray(bool on)

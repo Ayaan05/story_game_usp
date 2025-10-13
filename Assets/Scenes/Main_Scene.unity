@@ -775,6 +775,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &514698726
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 514698727}
+  m_Layer: 0
+  m_Name: HandleEdge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &514698727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 514698726}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.1, y: -1.9, z: -0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1132196593}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1308,6 +1339,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &777477881 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1549605821240290692, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+  m_PrefabInstance: {fileID: 9181983983074692449}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &903393284
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,6 +1488,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MusicPlayer
   playOnAwake: 1
   volume: 0.5
+--- !u!4 &1132196593 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+  m_PrefabInstance: {fileID: 9181983983074692449}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1147061288
 GameObject:
   m_ObjectHideFlags: 0
@@ -1488,7 +1529,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 111.600006, y: -8.827301}
+  m_AnchoredPosition: {x: 111.6001, y: -8.8272705}
   m_SizeDelta: {x: 184, y: 232}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1147061290
@@ -2596,8 +2637,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 119.63709, y: 1, z: 1}
-  m_Center: {x: 2.6789055, y: 0, z: 0}
+  m_Size: {x: 151.14256, y: 1, z: 1}
+  m_Center: {x: 3.152626, y: 0, z: 0}
 --- !u!1 &1181720983097053900 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5173115058409477708, guid: 0a2834ded649f45e98614d536b85b74e, type: 3}
@@ -2654,6 +2695,10 @@ PrefabInstance:
     - target: {fileID: 5173115058409477708, guid: 0a2834ded649f45e98614d536b85b74e, type: 3}
       propertyPath: m_Name
       value: WaterStreamPS
+      objectReference: {fileID: 0}
+    - target: {fileID: 6355557376002858622, guid: 0a2834ded649f45e98614d536b85b74e, type: 3}
+      propertyPath: InitialModule.gravityModifier.scalar
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6355557376002858622, guid: 0a2834ded649f45e98614d536b85b74e, type: 3}
       propertyPath: 'TriggerModule.primitives.Array.data[0]'
@@ -2835,6 +2880,22 @@ PrefabInstance:
       value: 0.713
       objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: launchSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: leftEdgeRef
+      value: 
+      objectReference: {fileID: 777477881}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: gravityAccel
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: rightEdgeRef
+      value: 
+      objectReference: {fileID: 514698727}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: grassKillLine
       value: 
       objectReference: {fileID: 2111644602}
@@ -2842,9 +2903,16 @@ PrefabInstance:
       propertyPath: dropletsPrefab
       value: 
       objectReference: {fileID: 1181720983097053900}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: dropsPerSecondPS
+      value: 21
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 514698727}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
 --- !u!1660057539 &9223372036854775807
