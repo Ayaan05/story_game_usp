@@ -1370,11 +1370,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &777477881 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1549605821240290692, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
-  m_PrefabInstance: {fileID: 9181983983074692449}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &903393284
 GameObject:
   m_ObjectHideFlags: 0
@@ -2944,7 +2939,7 @@ PrefabInstance:
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: topEdgeRef
       value: 
-      objectReference: {fileID: 461863550}
+      objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: launchSpeed
       value: 8
@@ -2952,7 +2947,7 @@ PrefabInstance:
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: leftEdgeRef
       value: 
-      objectReference: {fileID: 777477881}
+      objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: gravityAccel
       value: 18
@@ -2960,11 +2955,11 @@ PrefabInstance:
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: rightEdgeRef
       value: 
-      objectReference: {fileID: 514698727}
+      objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: bottomEdgeRef
       value: 
-      objectReference: {fileID: 1121645548}
+      objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: grassKillLine
       value: 
