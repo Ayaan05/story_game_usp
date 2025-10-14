@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2264370401190278213}
   - component: {fileID: 3104410141664570663}
   - component: {fileID: 9137396252075291120}
+  - component: {fileID: 4513038129479660203}
   m_Layer: 0
   m_Name: sparkles 4
   m_TagString: Untagged
@@ -417,21 +418,6 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 7e2966ce082ab4066a4f493a64beb4a0, type: 3}
   volume: 1
   maxSeconds: 0
---- !u!114 &4513038129479660203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5065185621050550251}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f6c4063a5294201acc5ec8cad8a9f32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetButton: {fileID: 0}
-  activationDelay: 0
-  requirePointerRelease: 0
 --- !u!114 &9137396252075291120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -447,7 +433,25 @@ MonoBehaviour:
   alphaMin: 0.05
   alphaMax: 1
   shimmerHz: 1.7
-  scalePulse: 0.3
-  pulseHz: 1
+  scalePulse: 1.7
+  pulseHz: 1.2
   driftRadius: 0.03
   driftHz: 0.4
+--- !u!114 &4513038129479660203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5065185621050550251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f6c4063a5294201acc5ec8cad8a9f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 0}
+  fallbackSceneName: end_scene
+  fallbackMiniGame: 2
+  activationDelay: 0
+  requirePointerRelease: 0
+  debugLogs: 0
