@@ -588,6 +588,37 @@ MonoBehaviour:
   frequency: 2
   lifetimeSeconds: 2
   fadeTime: 0.2
+--- !u!1 &461863549
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 461863550}
+  m_Layer: 0
+  m_Name: TopEdge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &461863550
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461863549}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.2, y: 1.9, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1132196593}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &485408928
 GameObject:
   m_ObjectHideFlags: 0
@@ -1488,6 +1519,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MusicPlayer
   playOnAwake: 1
   volume: 0.5
+--- !u!1 &1121645547
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121645548}
+  m_Layer: 0
+  m_Name: Bottom Edge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1121645548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121645547}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.3, y: -6.5, z: -0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1132196593}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1132196593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
@@ -2040,7 +2102,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1597880679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2880,6 +2942,10 @@ PrefabInstance:
       value: 0.713
       objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: topEdgeRef
+      value: 
+      objectReference: {fileID: 461863550}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: launchSpeed
       value: 8
       objectReference: {fileID: 0}
@@ -2896,6 +2962,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 514698727}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: bottomEdgeRef
+      value: 
+      objectReference: {fileID: 1121645548}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: grassKillLine
       value: 
       objectReference: {fileID: 2111644602}
@@ -2903,6 +2973,10 @@ PrefabInstance:
       propertyPath: dropletsPrefab
       value: 
       objectReference: {fileID: 1181720983097053900}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: returnMoveLerp
+      value: 1.7
+      objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: dropsPerSecondPS
       value: 21
@@ -2913,6 +2987,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 514698727}
+    - targetCorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 461863550}
+    - targetCorrespondingSourceObject: {fileID: 3669877148216542123, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1121645548}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
 --- !u!1660057539 &9223372036854775807

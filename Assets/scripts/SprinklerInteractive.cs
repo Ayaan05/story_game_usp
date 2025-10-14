@@ -1,10 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;   // <- gives you TouchControl
+
 
 [RequireComponent(typeof(Collider2D))]
 public class SprinklerInteractive : MonoBehaviour
 {
     public enum SprayMode { Forward, VerticalDown }
+    // put near activeTouchId etc.
+    Coroutine returnCR;
+
 
     [Header("Dragging")]
     [SerializeField] float moveLerp = 18f;
@@ -17,6 +22,12 @@ public class SprinklerInteractive : MonoBehaviour
     [Header("Screen Clamp Anchors")]
     [SerializeField] Transform leftEdgeRef;   // e.g. NozzleTip
     [SerializeField] Transform rightEdgeRef;  // e.g. HandleEnd
+    [SerializeField] Transform topEdgeRef;     // ← assign your LID here
+    [SerializeField] Transform bottomEdgeRef;  // ← child at sprinkler’s bottom
+    [SerializeField] bool  clampYToCamera = true;
+    [SerializeField] float yScreenPadding = 0.15f;   // world units
+    int activeTouchId = -1;   // which finger is dragging (-1 = none)
+
 
 
 
@@ -68,6 +79,16 @@ public class SprinklerInteractive : MonoBehaviour
     [Header("Nozzle width")]
     [SerializeField] float nozzleWidth = 0.6f;     // how wide the mouth is
     [SerializeField] float nozzleThickness = 0.05f; // how tall the slit is
+
+    [Header("Return-to-origin")]
+    [SerializeField] bool returnToPickupPoint = true;
+    [SerializeField] float returnDelay = 0f;      // optional pause before returning
+    [SerializeField] float arrivedEpsilon = 0.02f; // how close is “close enough”
+    [SerializeField] float returnMoveLerp = 4f;  // slower than moveLerp
+    Vector3 pickupPos;
+    bool    hasPickupPos;
+    bool isReturning;
+
 
 
 
@@ -225,8 +246,17 @@ public class SprinklerInteractive : MonoBehaviour
 
         // Move & clamp
         Vector3 pos = transform.position;
-        pos = Vector3.Lerp(pos, targetPos, 1f - Mathf.Exp(-moveLerp * Time.deltaTime));
+        float rate = isReturning ? returnMoveLerp : moveLerp;       // << slow when returning
+        pos = Vector3.Lerp(pos, targetPos, 1f - Mathf.Exp(-rate * Time.deltaTime));
         transform.position = ClampToBounds(pos);
+
+        // stop "return" once we’ve arrived
+        if (isReturning && (transform.position - targetPos).sqrMagnitude <= arrivedEpsilon * arrivedEpsilon)
+        {
+            isReturning = false;
+            hasPickupPos = false;
+        }
+
 
         // Velocity estimate
         Vector3 newVel = (transform.position - lastPos) / Mathf.Max(Time.deltaTime, 1e-5f);
@@ -252,7 +282,9 @@ public class SprinklerInteractive : MonoBehaviour
         }
 
         // Spray
-        bool shouldSpray = speed >= spraySpeedThreshold && nozzle && dropletsPrefab;
+        // Only spray while the user is actively dragging
+        bool shouldSpray = dragging && speed >= spraySpeedThreshold && nozzle && dropletsPrefab;
+
         HandleSpray(shouldSpray);
     }
 
@@ -261,53 +293,111 @@ public class SprinklerInteractive : MonoBehaviour
     {
         var cam = Camera.main; if (!cam) return;
 
-        Vector2 screenPos = Vector2.zero;
+        Vector2 screenPos = default;
         bool down = false, held = false, up = false;
 
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        // -------- Touch (mobile) --------
+        if (Touchscreen.current != null)
         {
-            var t = Touchscreen.current.primaryTouch;
-            screenPos = t.position.ReadValue();
-            down = t.press.wasPressedThisFrame;
-            held = t.press.isPressed;
-            up   = t.press.wasReleasedThisFrame;
+            foreach (var t in Touchscreen.current.touches)
+            {
+                int id = t.touchId.ReadValue();
+
+                if (activeTouchId < 0)
+                {
+                    if (!t.press.wasPressedThisFrame) continue;
+
+                    float zDist = Mathf.Abs(cam.transform.position.z - transform.position.z);
+                    var wp = cam.ScreenToWorldPoint(new Vector3(t.position.ReadValue().x, t.position.ReadValue().y, zDist));
+                    wp.z = safeZ;
+
+                    if (col != null && col.OverlapPoint(wp))
+                    {
+                        activeTouchId = id;
+                        screenPos = t.position.ReadValue();
+                        down = true; held = true;
+                        break;
+                    }
+                }
+                else if (id == activeTouchId)
+                {
+                    screenPos = t.position.ReadValue();
+                    down = t.press.wasPressedThisFrame;
+                    held = t.press.isPressed;
+                    up   = t.press.wasReleasedThisFrame;
+                    break;
+                }
+            }
         }
+        // -------- Mouse (editor/desktop) --------
         else if (Mouse.current != null)
         {
             screenPos = Mouse.current.position.ReadValue();
             down = Mouse.current.leftButton.wasPressedThisFrame;
             held = Mouse.current.leftButton.isPressed;
             up   = Mouse.current.leftButton.wasReleasedThisFrame;
-        }
-        else if (Pointer.current != null)
-        {
-            screenPos = Pointer.current.position.ReadValue();
-            down = Pointer.current.press.wasPressedThisFrame;
-            held = Pointer.current.press.isPressed;
-            up   = Pointer.current.press.wasReleasedThisFrame;
-        }
 
-        float zDist = Mathf.Abs(cam.transform.position.z - transform.position.z);
-        Vector3 pw = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, zDist));
-        pw.z = safeZ;
-
-        if (down)
-        {
-            var hit = Physics2D.Raycast(pw, Vector2.zero, 0f);
-            if (hit.collider && hit.collider == col)
+            if (down)
             {
-                dragging = true;
-                grabOffset = transform.position - pw;
-                targetPos = ClampToBounds(transform.position);
+                float zDist = Mathf.Abs(cam.transform.position.z - transform.position.z);
+                var wp = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, zDist));
+                wp.z = safeZ;
+                if (!(col != null && col.OverlapPoint(wp))) down = false; // reject off-target clicks
             }
         }
-        if (up) dragging = false;
 
-        if (dragging && held)
+        // Convert chosen position to world
+        float z = Mathf.Abs(cam.transform.position.z - transform.position.z);
+        Vector3 pw = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, z));
+        pw.z = safeZ;
+
+        // ---- Begin drag (only if started on us) ----
+        if (down && col != null && col.OverlapPoint(pw))
         {
+            dragging = true;
+            grabOffset = transform.position - pw;
+            targetPos = ClampToBounds(transform.position);
+
+            // remember pickup + cancel any pending return
+            pickupPos = transform.position;
+            hasPickupPos = true;
+            isReturning = false;
+            if (returnCR != null) { StopCoroutine(returnCR); returnCR = null; }
+        }
+
+        // ---- Continue drag ----
+        if (dragging && held)
             targetPos = ClampToBounds(pw + grabOffset);
+
+        // ---- Release (touch lifts or mouse up) ----
+        bool released = (!held && dragging) || (up && (activeTouchId < 0 || dragging));
+        if (released)
+        {
+            dragging = false;
+            activeTouchId = -1;
+            // hard stop spray now
+            HandleSpray(false);
+            if (ps && ps.isPlaying) ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            dropTimer = 0f;   // RB2D path safety
+
+            if (returnToPickupPoint && hasPickupPos)
+            {
+                if (returnDelay > 0f)
+                {
+                    if (returnCR != null) StopCoroutine(returnCR);
+                    returnCR = StartCoroutine(ReturnSoon());
+                }
+                else
+                {
+                    targetPos = ClampToBounds(pickupPos);
+                    isReturning = true;  // slow glide back
+                }
+            }
         }
     }
+
+
+
 
     // ---------- Clamp ----------
     // World-space horizontal radii from the pivot to each sprite edge.
@@ -327,48 +417,62 @@ public class SprinklerInteractive : MonoBehaviour
         rightRadius = (b.extents.x - b.center.x) * sx;  // pivot -> right
     }
 
-   Vector3 ClampToBounds(Vector3 p)
+    Vector3 ClampToBounds(Vector3 p)
     {
         p.z = safeZ;
 
-        if (clampXToCamera && Camera.main)
-        {
-            var cam  = Camera.main;
-            float vert = cam.orthographicSize;
-            float horz = vert * cam.aspect;
-            Vector3 c  = cam.transform.position;
+        var cam = Camera.main;
+        if (!cam)
+            return p;
 
+        float vert = cam.orthographicSize;
+        float horz = vert * cam.aspect;
+        Vector3 c  = cam.transform.position;
+
+        // Proposed delta this frame
+        float dx = p.x - transform.position.x;
+        float dy = p.y - transform.position.y;
+
+        // ---------- HORIZONTAL (nozzle left, handle right) ----------
+        if (clampXToCamera)
+        {
             float camLeft  = c.x - horz + xScreenPadding;
             float camRight = c.x + horz - xScreenPadding;
 
-            // How far are we trying to move along X this frame?
-            float dx = p.x - transform.position.x;
+            // Predict where anchors will be after moving by dx
+            float leftPred  = leftEdgeRef  ? (leftEdgeRef.position.x  + dx) : (sr ? sr.bounds.min.x + dx : float.NaN);
+            float rightPred = rightEdgeRef ? (rightEdgeRef.position.x + dx) : (sr ? sr.bounds.max.x + dx : float.NaN);
 
-            // Predict where each anchor would be if we moved by dx.
-            // (We just offset current world position by dx; rotation/scale don’t change here.)
-            float leftPred  = leftEdgeRef  ? (leftEdgeRef.position.x  + dx) : float.NaN;
-            float rightPred = rightEdgeRef ? (rightEdgeRef.position.x + dx) : float.NaN;
-
-            // If an anchor isn't assigned, use sprite bounds for that side
-            if (!leftEdgeRef && sr)  leftPred  = sr.bounds.min.x + dx;
-            if (!rightEdgeRef && sr) rightPred = sr.bounds.max.x + dx;
-
-            // Now push p.x so both anchors remain inside the camera rect.
             if (!float.IsNaN(leftPred) && leftPred < camLeft)
-                p.x += (camLeft - leftPred);        // shift right so nozzle tip is inside
+                p.x += (camLeft - leftPred);       // nudge right to keep nozzle inside
 
             if (!float.IsNaN(rightPred) && rightPred > camRight)
-                p.x -= (rightPred - camRight);      // shift left so handle/back is inside
-        }
-        else
-        {
-            // Fallback: simple world-box clamp
-            p.x = Mathf.Clamp(p.x, clampMin.x, clampMax.x);
+                p.x -= (rightPred - camRight);     // nudge left to keep handle inside
         }
 
-        // Y free (or clamp elsewhere if you want)
+        // Recompute dy after possible x nudge (not needed for Y, but harmless)
+        dy = p.y - transform.position.y;
+
+        // ---------- VERTICAL (lid top, bottom of sprinkler bottom) ----------
+        if (clampYToCamera)
+        {
+            float camBottom = c.y - vert + yScreenPadding;
+            float camTop    = c.y + vert - yScreenPadding;
+
+            float topPred    = topEdgeRef    ? (topEdgeRef.position.y    + dy) : (sr ? sr.bounds.max.y + dy : float.NaN);
+            float bottomPred = bottomEdgeRef ? (bottomEdgeRef.position.y + dy) : (sr ? sr.bounds.min.y + dy : float.NaN);
+
+            if (!float.IsNaN(topPred) && topPred > camTop)
+                p.y -= (topPred - camTop);         // push down so lid stays inside
+
+            if (!float.IsNaN(bottomPred) && bottomPred < camBottom)
+                p.y += (camBottom - bottomPred);   // push up so bottom stays inside
+        }
+
         return p;
     }
+
+
 
 
 
@@ -454,6 +558,15 @@ public class SprinklerInteractive : MonoBehaviour
             if (dropLifetime > 0f) Destroy(drop, dropLifetime);
         }
     }
+
+    System.Collections.IEnumerator ReturnSoon()
+    {
+        yield return new WaitForSeconds(returnDelay);
+        if (!dragging && hasPickupPos)
+            targetPos = ClampToBounds(pickupPos);
+            isReturning = true;  // start slow return after the delay
+    }
+
 
 
 }
