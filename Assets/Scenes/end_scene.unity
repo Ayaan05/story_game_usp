@@ -431,6 +431,14 @@ PrefabInstance:
       value: 0.713
       objectReference: {fileID: 0}
     - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: launchSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: gravityAccel
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
       propertyPath: grassKillLine
       value: 
       objectReference: {fileID: 2111644602}
@@ -438,6 +446,14 @@ PrefabInstance:
       propertyPath: dropletsPrefab
       value: 
       objectReference: {fileID: 1364645340}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: returnMoveLerp
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8051713034143536826, guid: d5df43717628a46a9ba3dc1535822f8f, type: 3}
+      propertyPath: dropsPerSecondPS
+      value: 21
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
