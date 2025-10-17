@@ -44,8 +44,6 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     [Header("World Offsets (relative to target in WORLD units)")]
     [SerializeField] private Vector2 dogBubbleOffset = new Vector2(0f, 2.0f);
     [SerializeField] private Vector2 girlBubbleOffset = new Vector2(0f, 2.1f);
-    [SerializeField] private Vector2 hungryBtnOffset = new Vector2(-0.6f, 2.4f);
-    [SerializeField] private Vector2 stinkyBtnOffset = new Vector2(0.4f, 2.4f);
 
     [Header("Animation")]
     [SerializeField, Range(0.05f, 0.6f)] private float fadeTime = 0.18f;
@@ -219,6 +217,11 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
         // Only react if THIS object was actually hit
         if (e.pointerCurrentRaycast.gameObject != gameObject) return;
 
+        AdvanceSequence();
+    }
+
+    void AdvanceSequence()
+    {
         switch (step)
         {
             case Step.Closed:
@@ -263,7 +266,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
     void SayHi()
     {
         StartCoroutine(ClearBubblesSmooth()); // remove previous (if any)
-        SpawnBubbleOver(girlTransform, bubbleGirlHiPrefab, girlBubbleOffset);
+        SpawnBubbleOver(girlTransform, bubbleGirlHiPrefab, girlBubbleOffset, true);
         SpawnBubbleOver(dogTransform, bubbleDogHiPrefab, dogBubbleOffset);
         PlaySfx(textDingClip); // 2nd click: HI bubbles
     }
@@ -283,20 +286,18 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
         if (hungryButton)
         {
             var rt = hungryButton.transform as RectTransform;
-            PlaceUIOverWorld(rt, dogTransform, hungryBtnOffset);
             hungryButton.gameObject.SetActive(true);
             hungryButton.interactable = true;
-            Debug.Log("ShowFeelingChoices: enabled hungryButton and placed at " + rt.anchoredPosition);
+            Debug.Log("ShowFeelingChoices: enabled hungryButton");
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
 
         if (stinkyButton)
         {
             var rt = stinkyButton.transform as RectTransform;
-            PlaceUIOverWorld(rt, dogTransform, stinkyBtnOffset);
             stinkyButton.gameObject.SetActive(true);
             stinkyButton.interactable = true;
-            Debug.Log("ShowFeelingChoices: enabled stinkyButton and placed at " + rt.anchoredPosition);
+            Debug.Log("ShowFeelingChoices: enabled stinkyButton");
             StartCoroutine(FadeAndPopIn(rt, fadeTime));
         }
         PlaySfx(optionsAppearClip); // 4th click: options cloud appears
@@ -344,7 +345,7 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 
     // ====== Bubble helpers ======
 
-    void SpawnBubbleOver(Transform target, RectTransform bubblePrefab, Vector2 worldOffset)
+    void SpawnBubbleOver(Transform target, RectTransform bubblePrefab, Vector2 worldOffset, bool advanceOnClick = false)
     {
         if (!target)
         {
@@ -375,6 +376,16 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
         // Respect prefab's base scale and apply a slight shrink relative to it
         inst.localScale = inst.localScale * 0.88f;
 
+        if (advanceOnClick)
+        {
+            var trigger = inst.GetComponent<EventTrigger>();
+            if (!trigger) trigger = inst.gameObject.AddComponent<EventTrigger>();
+            if (trigger.triggers == null) trigger.triggers = new List<EventTrigger.Entry>();
+            var entry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
+            entry.callback.AddListener(_ => AdvanceSequence());
+            trigger.triggers.Add(entry);
+        }
+
         PlaceUIOverWorld(inst, target, worldOffset);
 
         // debug: verify anchored position
@@ -397,20 +408,19 @@ public class DoghouseSequence : MonoBehaviour, IPointerClickHandler
 
         step = Step.ChooseFeeling;
 
-        RevealButtonImmediate(hungryButton, hungryBaseScale, hungryBtnOffset);
-        RevealButtonImmediate(stinkyButton, stinkyBaseScale, stinkyBtnOffset);
+        RevealButtonImmediate(hungryButton, hungryBaseScale);
+        RevealButtonImmediate(stinkyButton, stinkyBaseScale);
 
         ApplyCompletionStateToButtons(gm);
     }
 
-    void RevealButtonImmediate(Button button, Vector3 baseScale, Vector2 offset)
+    void RevealButtonImmediate(Button button, Vector3 baseScale)
     {
         if (!button) return;
 
         var rt = button.transform as RectTransform;
         if (rt)
         {
-            PlaceUIOverWorld(rt, dogTransform, offset);
             rt.localScale = baseScale;
         }
 
